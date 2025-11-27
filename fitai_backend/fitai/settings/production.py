@@ -2,19 +2,28 @@
 Configurações para PRODUÇÃO (Render.com)
 Usando PostgreSQL do Neon.tech - dados persistentes!
 """
+
+# ==============================================================================
+# 🔍 DIAGNÓSTICO - REMOVE DEPOIS QUE FUNCIONAR
+# ==============================================================================
+import sys
+print("=" * 80)
+print("🔍 DIAGNÓSTICO DO PRODUCTION.PY")
+print(f"📍 Arquivo sendo executado: {__file__}")
+print(f"🐍 Python: {sys.version}")
+print(f"📂 Path: {sys.path[:3]}")
+print("=" * 80)
+
 from .base import *
 import os
 import json
-import dj_database_url
 
-# =============================================================================
-#  SEGURANÇA
-# =============================================================================
-
+# ==============================================================================
+# 🔒 SEGURANÇA
+# ==============================================================================
 DEBUG = False
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS = [RENDER_EXTERNAL_HOSTNAME, '.onrender.com']
 else:
@@ -22,10 +31,11 @@ else:
 
 SECRET_KEY = os.environ.get('SECRET_KEY', SECRET_KEY)
 
-# =============================================================================
-#  BANCO DE DADOS - NEON POSTGRESQL
-# =============================================================================
+# ==============================================================================
+# 🗄️ BANCO DE DADOS - NEON POSTGRESQL (CONFIGURAÇÃO DIRETA)
+# ==============================================================================
 
+# ✅ CONFIGURAÇÃO DIRETA DO NEON (SEM VARIÁVEIS DE AMBIENTE)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -36,104 +46,88 @@ DATABASES = {
         'PORT': '5432',
         'OPTIONS': {
             'sslmode': 'require',
-        }
+        },
     }
 }
 
-# =============================================================================
-#  CORS
-# =============================================================================
+# 🔍 DIAGNÓSTICO DA CONFIGURAÇÃO
+print("\n" + "=" * 80)
+print("🗄️  CONFIGURAÇÃO DO BANCO DE DADOS:")
+print(f"   ENGINE: {DATABASES['default']['ENGINE']}")
+print(f"   NAME: {DATABASES['default']['NAME']}")
+print(f"   USER: {DATABASES['default']['USER']}")
+print(f"   HOST: {DATABASES['default']['HOST']}")
+print(f"   PORT: {DATABASES['default']['PORT']}")
+print("=" * 80 + "\n")
 
+# ==============================================================================
+# 🌐 CORS
+# ==============================================================================
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-# =============================================================================
-#  ARQUIVOS ESTÁTICOS
-# =============================================================================
-
+# ==============================================================================
+# 📁 ARQUIVOS ESTÁTICOS (WhiteNoise)
+# ==============================================================================
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_URL = '/static/'
 
-MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+# WhiteNoise para servir arquivos estáticos
+if 'whitenoise.middleware.WhiteNoiseMiddleware' not in MIDDLEWARE:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
-# =============================================================================
-#  FIREBASE
-# =============================================================================
-
-FIREBASE_CREDENTIALS_JSON = os.environ.get('FIREBASE_CREDENTIALS')
-
-if FIREBASE_CREDENTIALS_JSON:
-    try:
-        import firebase_admin
-        from firebase_admin import credentials
-        
-        firebase_config = json.loads(FIREBASE_CREDENTIALS_JSON)
-        
-        if not firebase_admin._apps:
-            cred = credentials.Certificate(firebase_config)
-            firebase_admin.initialize_app(cred)
-            print("✅ Firebase inicializado")
-    except Exception as e:
-        print(f"⚠️ Firebase: {e}")
-else:
-    print("⚠️ FIREBASE_CREDENTIALS não configurada")
-
-# =============================================================================
-#  GEMINI AI
-# =============================================================================
-
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
-AI_FEATURES_ENABLED = bool(GEMINI_API_KEY)
-
-# =============================================================================
-#  CACHE
-# =============================================================================
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'fitai_cache',
-    }
-}
-
-# =============================================================================
-#  LOGGING
-# =============================================================================
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {'class': 'logging.StreamHandler'},
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
-}
-
-# =============================================================================
-#  SEGURANÇA
-# =============================================================================
-
+# ==============================================================================
+# 🔐 SEGURANÇA HTTPS
+# ==============================================================================
 SECURE_SSL_REDIRECT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
-# =============================================================================
-#  INFO
-# =============================================================================
+# ==============================================================================
+# 🔥 FIREBASE
+# ==============================================================================
+FIREBASE_CREDENTIALS_JSON = os.environ.get('FIREBASE_CREDENTIALS_JSON')
 
+if FIREBASE_CREDENTIALS_JSON:
+    try:
+        FIREBASE_CONFIG = json.loads(FIREBASE_CREDENTIALS_JSON)
+        print("✅ Firebase configurado via variável de ambiente")
+    except json.JSONDecodeError as e:
+        print(f"❌ Erro ao parsear FIREBASE_CREDENTIALS_JSON: {e}")
+        FIREBASE_CONFIG = None
+else:
+    FIREBASE_CONFIG = None
+    print("⚠️  FIREBASE_CREDENTIALS_JSON não encontrada")
+
+# ==============================================================================
+# 🤖 GEMINI AI
+# ==============================================================================
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+AI_FEATURES_ENABLED = bool(GEMINI_API_KEY)
+
+if AI_FEATURES_ENABLED:
+    print("✅ Gemini AI habilitado")
+else:
+    print("⚠️  GEMINI_API_KEY não encontrada - AI desabilitado")
+
+# ==============================================================================
+# 🎯 INFO FINAL
+# ==============================================================================
 if RENDER_EXTERNAL_HOSTNAME:
-    print("=" * 60)
-    print("🚀 FITAI - PRODUÇÃO")
-    print(f"📍 https://{RENDER_EXTERNAL_HOSTNAME}")
-    print(f"🗄️  PostgreSQL (Neon)")
-    print(f"🔥 Firebase: {'✅' if FIREBASE_CREDENTIALS_JSON else '❌'}")
-    print(f"🤖 Gemini: {'✅' if GEMINI_API_KEY else '❌'}")
-    print("=" * 60)
+    print("\n" + "=" * 80)
+    print("🚀 FITAI - PRODUÇÃO (RENDER)")
+    print(f"📍 URL: https://{RENDER_EXTERNAL_HOSTNAME}")
+    print(f"🗄️  Banco: PostgreSQL (Neon)")
+    print(f"🔥 Firebase: {'✅ Configurado' if FIREBASE_CONFIG else '❌ Não configurado'}")
+    print(f"🤖 Gemini: {'✅ Habilitado' if AI_FEATURES_ENABLED else '❌ Desabilitado'}")
+    print(f"🔒 Debug: {DEBUG}")
+    print("=" * 80 + "\n")
