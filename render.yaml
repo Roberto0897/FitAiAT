@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: fitai-backend
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      python manage.py collectstatic --no-input
+      python manage.py migrate --no-input
+    startCommand: gunicorn fitai.wsgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: fitai.settings.production
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SECRET_KEY
+        generateValue: true
