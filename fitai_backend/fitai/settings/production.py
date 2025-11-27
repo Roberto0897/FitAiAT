@@ -27,12 +27,18 @@ SECRET_KEY = os.environ.get('SECRET_KEY', SECRET_KEY)
 # =============================================================================
 
 DATABASES = {
-    'default': dj_database_url.parse(
-        'postgresql://neondb_owner:npg_GShkFM9ZErs3@ep-damp-forest-acrdjkuq-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require'
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'neondb',
+        'USER': 'neondb_owner',
+        'PASSWORD': 'npg_GShkFM9ZErs3',
+        'HOST': 'ep-damp-forest-acrdjkuq-pooler.sa-east-1.aws.neon.tech',
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',
+        }
+    }
 }
-
-print("✅ Usando Neon PostgreSQL (HARDCODED - conexão forçada)")
 
 # =============================================================================
 #  CORS
