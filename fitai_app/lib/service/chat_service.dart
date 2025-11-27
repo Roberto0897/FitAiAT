@@ -405,178 +405,100 @@ Future<bool> generateWorkoutFromConversation() async {
     _isGeneratingWorkout = true;
     notifyListeners();
 
-    debugPrint('🏋️ Gerando treino manual');
-    
-    // ✅ VERIFICAR SE TEM plan_info DETECTADO
-    if (_detectedPlanInfo != null) {
-      debugPrint('✅ Usando plan_info detectado do chat:');
-      debugPrint('   Dias: ${_detectedPlanInfo!['days_per_week']}');
-      debugPrint('   Foco: ${_detectedPlanInfo!['focus']}');
-      debugPrint('   Dificuldade: ${_detectedPlanInfo!['difficulty']}');
-    } else {
-      debugPrint('⚠️ Nenhum plan_info detectado, usando fallback genérico');
-    }
+    debugPrint('🏋️ Gerando treino a partir da conversa');
+    debugPrint('   Conversation ID: ${_currentConversation!.id}');
 
-    // 🔥 CORREÇÃO: PASSAR planInfo como primeiro argumento
-    final response = await ApiService.generateWorkoutFromChat(
-      conversationId: _currentConversation!.id,
-      planInfo: _detectedPlanInfo,  // ✅ USAR O DETECTADO!
-      daysPerWeek: 5,               // Fallback se planInfo for null
-      focus: 'full_body',           // Fallback se planInfo for null
+    // 🔥 CORREÇÃO: Usar método POST correto
+    final response = await ApiService.post(
+      '/recommendations/generate-workout-from-chat/',
+      {
+      'conversation_id': _currentConversation!.id,
+        // ❌ NÃO enviar user_preferences
+        // O backend extrai automaticamente da conversa
+      },
     );
 
-    debugPrint('📦 Resposta do backend (manual):');
-    debugPrint(response.toString());
-
-    // 🔥 FIX: Tratar AMBOS os casos igual ao método automático
-    if (response.containsKey('workout_created') && response['workout_created'] == true) {
-      // ✅ CASO 1: Treino já criado no banco
-      final workout = response['workout'];
-      _lastGeneratedWorkout = workout;
-      
-      debugPrint('✅ Treino manual gerado (já criado)!');
-      debugPrint('   ID: ${workout['id']}');
-      
-      // Adicionar mensagem de sucesso
-      final successMessage = ChatMessage(
-        text: '✅ Treino criado com sucesso!\n\n'
-              '📋 ${workout['name']}\n'
-              '⏱️ Duração: ${workout['estimated_duration']} min\n'
-              '💪 ${workout['exercises']?.length ?? 0} exercícios\n\n'
-              'Acesse "Meus Treinos" para começar!',
-        isUser: false,
-        timestamp: DateTime.now(),
-        intent: 'workout_generated',
-        confidence: 1.0,
-      );
-      _messages.add(successMessage);
-      
-      _isGeneratingWorkout = false;
-      notifyListeners();
-      return true;
-
-    } else if (response.containsKey('ai_generated_workout')) {
-      // 📝 CASO 2: Apenas plano gerado, CRIAR treino no banco
-      debugPrint('📝 Plano gerado, criando treino no banco...');
-      
-      final aiWorkout = response['ai_generated_workout'];
-      final planInfo = aiWorkout['plan_info'] as Map<String, dynamic>;
-      final workoutPlan = aiWorkout['workout_plan'] as List<dynamic>;
-
-      // Extrair info do plano
-      final focus = planInfo['focus'] ?? 'full_body';
-      final difficulty = planInfo['difficulty'] ?? 'intermediate';
-      final duration = planInfo['estimated_duration'] ?? 30;
-      final daysPerWeek = planInfo['days_per_week'] ?? 5;
-      
-      final focusLabel = _getFocusLabel(focus);
-      final workoutName = 'Treino IA - $focusLabel';
-
-      debugPrint('   Nome: $workoutName');
-      debugPrint('   Exercícios: ${workoutPlan.length}');
-
-      // 1️⃣ Criar treino
-      final createResponse = await ApiService.createWorkout(
-        name: workoutName,
-        description: 'Treino personalizado gerado pela IA com base na conversa.\n'
-                    'Foco: $focusLabel | $daysPerWeek dias/semana',
-        difficultyLevel: difficulty,
-        estimatedDuration: duration,
-        workoutType: focus,
-      );
-
-      // Obter ID do treino criado
-      int? workoutId;
-      if (createResponse.containsKey('id')) {
-        workoutId = createResponse['id'] as int;
-      } else if (createResponse.containsKey('workout')) {
-        workoutId = (createResponse['workout'] as Map)['id'] as int;
-      }
-
-      if (workoutId == null) {
-        throw Exception('ID do treino não retornado pelo backend');
-      }
-
-      debugPrint('✅ Treino criado! ID: $workoutId');
-
-      // 2️⃣ Adicionar exercícios ao treino
-      int successCount = 0;
-      int errorCount = 0;
-      
-      for (var exerciseData in workoutPlan) {
-        try {
-          final exercise = exerciseData['exercise'] as Map<String, dynamic>;
-          final exerciseId = exercise['id'] as int;
-          
-          await ApiService.addExerciseToWorkout(
-            workoutId: workoutId,
-            exerciseId: exerciseId,
-            sets: exerciseData['sets'] as int,
-            reps: exerciseData['reps']?.toString() ?? '8-12',
-            restTime: exerciseData['rest_time_seconds'] as int,
-            orderInWorkout: exerciseData['order'] as int,
-          );
-          
-          successCount++;
-          debugPrint('   ✓ Exercício ${exercise['name']} adicionado');
-          
-        } catch (e) {
-          errorCount++;
-          debugPrint('   ✗ Erro ao adicionar exercício: $e');
-        }
-      }
-
-      debugPrint('🎉 Treino finalizado:');
-      debugPrint('   ✅ $successCount exercícios adicionados');
-      debugPrint('   ❌ $errorCount erros');
-
-      // Salvar info do treino
-      _lastGeneratedWorkout = {
-        'id': workoutId,
-        'name': workoutName,
-        'exercises': workoutPlan,
-        'duration': duration,
-        'focus': focus,
-      };
-
-      // Mensagem de sucesso na conversa
-      final successMessage = ChatMessage(
-        text: '✅ Treino "$workoutName" criado!\n\n'
-              '💪 $successCount exercícios adicionados\n'
-              '⏱️ Duração estimada: $duration min\n'
-              '📅 $daysPerWeek dias por semana\n\n'
-              '👉 Acesse "Meus Treinos" para começar!',
-        isUser: false,
-        timestamp: DateTime.now(),
-        intent: 'workout_generated',
-        confidence: 1.0,
-      );
-      _messages.add(successMessage);
-
-      _isGeneratingWorkout = false;
-      notifyListeners();
-      return true;
-
-    } else {
-      // ❌ Resposta inesperada
-      throw Exception('Formato de resposta desconhecido: ${response.keys}');
+    // 🔥 VALIDAÇÕES SIMPLES
+    if (response == null) {
+      throw Exception('Resposta vazia do servidor');
     }
 
-  } catch (e, stackTrace) {
-    debugPrint('❌ Erro ao gerar treino manual: $e');
-    debugPrint('Stack: $stackTrace');
+    debugPrint('📦 Resposta recebida:');
+    debugPrint('   Keys: ${response.keys}');
+    debugPrint('   Success: ${response['success']}');
+
+    if (response['success'] != true) {
+      throw Exception(response['error'] ?? 'Erro desconhecido');
+    }
+
+    // 🔥 VALIDAR WORKOUT_ID (backend sempre cria o treino)
+    final int? workoutId = response['workout_id'];
     
-    _error = 'Erro ao gerar treino: ${e.toString()}';
+    if (workoutId == null) {
+      throw Exception('workout_id não retornado pelo backend');
+    }
+
+    // ✅ SUCESSO! Extrair dados do plano
+    final aiWorkout = response['ai_generated_workout'];
+    final planInfo = aiWorkout?['plan_info'] as Map<String, dynamic>?;
+    final workoutPlan = aiWorkout?['workout_plan'] as List<dynamic>?;
+
+    final workoutName = planInfo?['workout_name'] ?? 'Treino IA';
+    final totalExercises = planInfo?['total_exercises'] ?? workoutPlan?.length ?? 0;
+    final duration = planInfo?['duration_per_day'] ?? planInfo?['estimated_duration'] ?? 30;
+    final daysPerWeek = planInfo?['days_per_week'] ?? 5;
+
+    debugPrint('✅ Treino criado com sucesso!');
+    debugPrint('   ID: $workoutId');
+    debugPrint('   Nome: $workoutName');
+    debugPrint('   Exercícios: $totalExercises');
+
+    // Salvar informações do treino
+    _lastGeneratedWorkout = {
+      'id': workoutId,
+      'name': workoutName,
+      'total_exercises': totalExercises,
+      'duration': duration,
+      'days_per_week': daysPerWeek,
+    };
+
+    // Adicionar mensagem de sucesso na conversa
+    final successMessage = ChatMessage(
+      text: '✅ **Treino criado com sucesso!**\n\n'
+            '📋 $workoutName\n'
+            '💪 $totalExercises exercícios\n'
+            '⏱️ $duration min por dia\n'
+            '📅 $daysPerWeek dias/semana\n\n'
+            '👉 Acesse "Meus Treinos" para começar!',
+      isUser: false,
+      timestamp: DateTime.now(),
+      intent: 'workout_generated',
+      confidence: 1.0,
+    );
+    
+    _messages.add(successMessage);
+
+    _isGeneratingWorkout = false;
+    notifyListeners();
+    return true;
+
+  } catch (e, stackTrace) {
+    debugPrint('❌ Erro ao gerar treino: $e');
+    debugPrint('Stack trace:');
+    debugPrint(stackTrace.toString());
+    
+    _error = e.toString();
     
     // Adicionar mensagem de erro na conversa
     final errorMessage = ChatMessage(
-      text: '❌ Desculpe, houve um erro ao gerar seu treino.\n\n'
-            'Detalhes: ${e.toString()}\n\n'
-            'Por favor, tente novamente.',
+      text: '❌ Desculpe, ocorreu um erro ao criar seu treino.\n\n'
+            'Erro: ${e.toString()}\n\n'
+            'Tente novamente ou reformule sua solicitação.',
       isUser: false,
       timestamp: DateTime.now(),
       intent: 'error',
     );
+    
     _messages.add(errorMessage);
     
     _isGeneratingWorkout = false;

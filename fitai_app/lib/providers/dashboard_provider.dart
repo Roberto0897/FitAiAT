@@ -4,7 +4,7 @@ import '../models/workout_history_model.dart';
 import 'dart:convert';
 
 /// Provider para gerenciar dados do Dashboard
-/// ✨ ATUALIZADO: Prioriza treinos gerados pela IA
+///  Prioriza treinos gerados pela IA
 class DashboardProvider extends ChangeNotifier {
   // ============================================================
   // ESTADO
@@ -23,7 +23,7 @@ class DashboardProvider extends ChangeNotifier {
   bool _isAIRecommendation = false; // Indica se veio da IA
   String? _aiRecommendationReason; // Motivo da recomendação
   
-  // 🔥 NOVO: Flag para indicar se é treino GERADO pela IA (não apenas recomendado)
+  //  Flag para indicar se é treino GERADO pela IA (não apenas recomendado)
   bool _isAIGeneratedWorkout = false;
   
   // Recomendação IA (mensagem motivacional)
@@ -31,7 +31,7 @@ class DashboardProvider extends ChangeNotifier {
   int? _daysSinceLastWorkout;
   bool _isLoadingAIRecommendation = false;
 
-   // 🔥 NOVO: Recomendação diária da IA
+   //  Recomendação diária da IA
   Map<String, dynamic>? _dailyAIRecommendation;
   bool _hasDailyAIRecommendation = false;
   String _aiRecommendationType = 'motivation';
@@ -74,13 +74,13 @@ class DashboardProvider extends ChangeNotifier {
   int? get daysSinceLastWorkout => _daysSinceLastWorkout;
   bool get isLoadingAIRecommendation => _isLoadingAIRecommendation;
 
-   // 🔥 NOVO: Getters da recomendação diária
+   //  Getters da recomendação diária
   Map<String, dynamic>? get dailyAIRecommendation => _dailyAIRecommendation;
   bool get hasDailyAIRecommendation => _hasDailyAIRecommendation;
   String get aiRecommendationType => _aiRecommendationType;
   String get aiRecommendationEmoji => _aiRecommendationEmoji;
   
-  /// 🔥 NOVO: Badge com informações visuais
+  ///  Badge com informações visuais
   Map<String, dynamic> get workoutStatusBadge {
     if (_daysSinceLastWorkout == null) {
       return {
@@ -143,7 +143,7 @@ class DashboardProvider extends ChangeNotifier {
       // 2. Calcular estatísticas localmente
       _calculateStatistics();
       
-      // 3. 🔥 NOVO: Buscar último treino gerado pela IA PRIMEIRO
+      // 3.  Buscar último treino gerado pela IA PRIMEIRO
       await _loadLastAIGeneratedWorkout();
       
       // 4. Se não houver treino da IA, buscar recomendado normal
@@ -151,7 +151,7 @@ class DashboardProvider extends ChangeNotifier {
         await _loadRecommendedWorkoutWithAI();
       }
       
-      // 3. 🔥 Carregar recomendação diária da IA (NOVO)
+      // 3.  Carregar recomendação diária da IA (NOVO)
       await loadDailyAIRecommendation();
       
       _error = null;
@@ -174,7 +174,7 @@ class DashboardProvider extends ChangeNotifier {
   }
   
   // ============================================================
-  // 🔥 NOVO: BUSCAR ÚLTIMO TREINO GERADO PELA IA
+  // BUSCAR ÚLTIMO TREINO GERADO PELA IA
   // ============================================================
   
   /// Busca o último treino criado pela IA para o usuário
@@ -192,27 +192,27 @@ class DashboardProvider extends ChangeNotifier {
       
       final allWorkouts = response['workouts'] as List;
       
-      // 🔥 FILTRAR: Apenas treinos criados pela IA
+      //  FILTRAR: Apenas treinos criados pela IA
       final aiWorkouts = allWorkouts.where((workout) {
-        // ✅ Opção 1 (PRINCIPAL): Campo is_recommended do seu backend
+        //  Opção 1 (PRINCIPAL): Campo is_recommended do seu backend
         if (workout['is_recommended'] == true) {
           debugPrint('   ✓ Treino ${workout['name']} marcado com is_recommended');
           return true;
         }
         
-        // ✅ Opção 2: Campo is_personalized (treinos personalizados do usuário)
+        //  Opção 2: Campo is_personalized (treinos personalizados do usuário)
         if (workout['is_personalized'] == true) {
           debugPrint('   ✓ Treino ${workout['name']} marcado com is_personalized');
           return true;
         }
         
-        // ✅ Opção 3: Tem created_by_user (foi criado por um usuário específico)
+        //  Opção 3: Tem created_by_user (foi criado por um usuário específico)
         if (workout['created_by_user'] != null) {
           debugPrint('   ✓ Treino ${workout['name']} criado por usuário');
           return true;
         }
         
-        // ✅ Opção 4: Descrição contém indicadores de IA
+        //  Opção 4: Descrição contém indicadores de IA
         final description = (workout['description'] ?? '').toString().toLowerCase();
         if (description.contains('gerado pela ia') ||
             description.contains('gerado pela inteligência artificial') ||
@@ -360,7 +360,7 @@ class DashboardProvider extends ChangeNotifier {
   }
   
   // ============================================================
-  // 🤖 BUSCAR TREINO RECOMENDADO COM IA (FALLBACK)
+  //  BUSCAR TREINO RECOMENDADO COM IA (FALLBACK)
   // ============================================================
   
   /// Tenta buscar recomendação da IA, com fallback para endpoint normal
@@ -368,7 +368,7 @@ class DashboardProvider extends ChangeNotifier {
     try {
       debugPrint('🤖 Tentando buscar recomendação da IA (fallback)...');
       
-      // 🔥 PRIMEIRO: Tentar recomendações de exercícios da IA
+      //  PRIMEIRO: Tentar recomendações de exercícios da IA
       try {
         final aiResponse = await ApiService.getAIExerciseRecommendations();
         
@@ -399,7 +399,7 @@ class DashboardProvider extends ChangeNotifier {
         debugPrint('⚠️ IA não disponível ou sem recomendações: $aiError');
       }
       
-      // 🔥 SEGUNDO: Fallback para endpoint de treinos recomendados normal
+      //  SEGUNDO: Fallback para endpoint de treinos recomendados normal
       debugPrint('💪 Buscando treino recomendado do backend...');
       
       final response = await ApiService.getRecommendedWorkouts();
@@ -413,7 +413,7 @@ class DashboardProvider extends ChangeNotifier {
         return;
       }
       
-      // 🔥 TERCEIRO: Buscar treino diferente do último
+      //  TERCEIRO: Buscar treino diferente do último
       if (_workoutHistory.isNotEmpty) {
         final lastWorkout = _workoutHistory.first;
         
@@ -467,10 +467,10 @@ class DashboardProvider extends ChangeNotifier {
   }
   
   // ============================================================
-  // 🤖 GERAR RECOMENDAÇÃO MOTIVACIONAL COM IA
+  //  GERAR RECOMENDAÇÃO MOTIVACIONAL COM IA
   // ============================================================
   
-  /// 🔥 NOVO: Carregar recomendação diária da IA
+  ///  Carregar recomendação diária da IA
 Future<void> loadDailyAIRecommendation() async {
   try {
     debugPrint('🤖 Carregando recomendação diária da IA...');
@@ -495,7 +495,7 @@ Future<void> loadDailyAIRecommendation() async {
       _aiRecommendationType = _dailyAIRecommendation!['recommendation_type'] ?? 'motivation';
       _aiRecommendationEmoji = _dailyAIRecommendation!['emoji'] ?? '💪';
       
-      // ✅ Atualizar mensagem motivacional com a da IA
+      //  Atualizar mensagem motivacional com a da IA
       _aiMotivationalMessage = _dailyAIRecommendation!['message'];
       
       debugPrint('✅ Recomendação IA carregada:');
@@ -512,7 +512,7 @@ Future<void> loadDailyAIRecommendation() async {
       _aiRecommendationEmoji = _dailyAIRecommendation!['emoji'] ?? '💪';
       _aiMotivationalMessage = _dailyAIRecommendation!['message'];
 
-      // 🔥 NOVO: Extrair days_since_last do metadata (se disponível)
+      //  Extrair days_since_last do metadata (se disponível)
       final metadata = _dailyAIRecommendation!['metadata'];
       if (metadata != null && metadata['personalization_factors'] != null) {
           final factors = metadata['personalization_factors'] as List;
@@ -570,7 +570,7 @@ void _generateLocalMotivationalMessage() {
   }
 }
 
-/// 🔄 Refresh da recomendação diária
+///  Refresh da recomendação diária
 Future<void> refreshDailyAIRecommendation() async {
   try {
     debugPrint('🔄 Forçando refresh da recomendação...');
@@ -601,7 +601,7 @@ Future<void> refreshDailyAIRecommendation() async {
 }
 
 // ============================================
-// MANTER loadSmartRecommendation SE VOCÊ USA
+// MANTER loadSmartRecommendation 
 // (para o card de treino recomendado)
 // ============================================
 
@@ -711,10 +711,6 @@ void _setDefaultValues() {
   
 }
 
-// ============================================
-// ADICIONE ESTES MÉTODOS DEPOIS DOS HELPERS
-// (logo após _setDefaultValues())
-// ============================================
 
 /// Método auxiliar para cor baseada no tipo de recomendação diária
 Color getAIRecommendationColor() {

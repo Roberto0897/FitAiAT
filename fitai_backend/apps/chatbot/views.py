@@ -458,7 +458,7 @@ def send_message(request, conversation_id):
 def get_conversation_history(request, conversation_id):
     """Recupera histórico completo de uma conversa"""
     
-    # 🔥 DEBUG CRÍTICO - ADICIONAR ISTO:
+    #  DEBUG CRÍTICO :
     import logging
     logger = logging.getLogger(__name__)
     
@@ -500,7 +500,7 @@ def get_conversation_history(request, conversation_id):
         offset = int(request.GET.get('offset', 0))
         include_context = request.GET.get('include_context', 'false').lower() == 'true'
         
-        # 🔥 DEBUG: Buscar conversa
+        #  DEBUG: Buscar conversa
         logger.error(f"🔍 Buscando conversa {conversation_id} para user {request.user.id}")
         
         try:

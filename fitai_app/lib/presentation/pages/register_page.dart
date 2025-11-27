@@ -47,21 +47,21 @@ class _RegisterPageOptimizedState extends State<RegisterPageOptimized> {
     _alturaController = TextEditingController();
   }
 
-  // ✅ CORRIGIDO: Conversão para Map
+  //  Conversão para Map
   void _finishRegistration() async {
     setState(() => _isLoading = true);
     
     _updateUserDataFromControllers();
     
     try {
-      // 1️⃣ Verificar se email já existe
+      // 1 Verificar se email já existe
       if (await UserService.emailExists(_userData.email)) {
         _showErrorMessage('Este email já está cadastrado. Tente fazer login.');
         setState(() => _isLoading = false);
         return;
       }
       
-      // 2️⃣ Criar usuário no Firebase Auth
+      // 2 Criar usuário no Firebase Auth
       final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _userData.email,
         password: _userData.senha,
@@ -69,10 +69,10 @@ class _RegisterPageOptimizedState extends State<RegisterPageOptimized> {
       
       debugPrint('✅ Firebase Auth: Usuário criado ${userCredential.user?.uid}');
       
-      // 3️⃣ Atualizar display name
+      // 3 Atualizar display name
       await userCredential.user?.updateDisplayName(_userData.nome);
       
-      // 4️⃣ Salvar dados do usuário no Firestore/Firebase
+      // 4 Salvar dados do usuário no Firestore/Firebase
       debugPrint('📤 Salvando dados no Firebase...');
       bool firebaseSuccess = await UserService.registerUser(_userData);
       
@@ -80,7 +80,7 @@ class _RegisterPageOptimizedState extends State<RegisterPageOptimized> {
         throw Exception('Falha ao salvar dados no Firebase');
       }
       
-      // 5️⃣ Sincronizar com Django
+      // 5 Sincronizar com Django
       debugPrint('📤 Sincronizando com backend Django...');
       bool djangoSuccess = await UserService.syncProfileWithDjango(_userData);
       
@@ -88,7 +88,7 @@ class _RegisterPageOptimizedState extends State<RegisterPageOptimized> {
         debugPrint('⚠️ Aviso: Falha ao sincronizar com Django (continuando)');
       }
       
-      // 6️⃣ 🤖 GERAR TREINOS PERSONALIZADOS COM IA
+      // 6  GERAR TREINOS PERSONALIZADOS COM IA
       debugPrint('🤖 Gerando treinos personalizados...');
       debugPrint('   Frequência: ${_userData.frequenciaSemanal} dias/semana');
       debugPrint('   Dias preferidos: ${_userData.diasPreferidos}');
@@ -104,7 +104,7 @@ class _RegisterPageOptimizedState extends State<RegisterPageOptimized> {
       );
 
       if (workoutResult != null && workoutResult['success'] == true) {
-        // ✅ NOVO: Verificar se é plano semanal ou treino único
+        // Verificar se é plano semanal ou treino único
         final isWeeklyPlan = workoutResult['is_weekly_plan'] ?? false;
         
         if (isWeeklyPlan) {
@@ -153,7 +153,7 @@ class _RegisterPageOptimizedState extends State<RegisterPageOptimized> {
           }
         }
       } else {
-        // ⚠️ Falha ao gerar treinos (não crítico)
+        //  Falha ao gerar treinos (não crítico)
         debugPrint('⚠️ Não foi possível gerar treinos automaticamente');
         
         if (mounted) {
@@ -164,7 +164,7 @@ class _RegisterPageOptimizedState extends State<RegisterPageOptimized> {
         }
       }
       
-      // 7️⃣ Aguardar redirect automático do AuthNotifier
+      // 7 Aguardar redirect automático do AuthNotifier
       debugPrint('🚀 Cadastro completo, aguardando redirect...');
       
       // Pequeno delay para garantir que a mensagem de sucesso seja vista
@@ -897,7 +897,7 @@ class _RegisterPageOptimizedState extends State<RegisterPageOptimized> {
           ),
           const SizedBox(height: 30),
 
-          // 🗓️ Frequência semanal
+          //  Frequência semanal
           const Text(
             'Quantos dias por semana você quer treinar?',
             style: TextStyle(color: Colors.white, fontSize: 16),
@@ -916,7 +916,7 @@ class _RegisterPageOptimizedState extends State<RegisterPageOptimized> {
 
           const SizedBox(height: 30),
 
-          // 📅 Dias preferidos
+          //  Dias preferidos
           const Text(
             'Em quais dias você prefere treinar?',
             style: TextStyle(color: Colors.white, fontSize: 16),
@@ -944,7 +944,7 @@ class _RegisterPageOptimizedState extends State<RegisterPageOptimized> {
 
           const SizedBox(height: 30),
 
-          // ⏰ Horário preferido
+          //  Horário preferido
           const Text(
             'Qual melhor horário para treinar?',
             style: TextStyle(color: Colors.white, fontSize: 16),
@@ -960,7 +960,7 @@ class _RegisterPageOptimizedState extends State<RegisterPageOptimized> {
 
           const SizedBox(height: 30),
 
-          // ⚠️ Limitações (opcional)
+          //  Limitações (opcional)
           const Text(
             'Tem alguma limitação física? (opcional)',
             style: TextStyle(color: Colors.grey, fontSize: 14),
@@ -1090,7 +1090,7 @@ Widget _buildDayChip(String label, int dayNumber) {
     pressElevation: 8,
   );
 }
-  // ✅ CORRIGIDO: withValues ao invés de withOpacity
+  //  withValues ao invés de withOpacity
  Widget _buildStep7() {
   return Padding(
     padding: const EdgeInsets.all(20.0),
@@ -1109,7 +1109,7 @@ Widget _buildDayChip(String label, int dayNumber) {
         
         const SizedBox(height: 16),
         
-        // ✅ NOVO: Mostrar quantos treinos está gerando
+        //  Mostrar quantos treinos está gerando
         if (_userData.frequenciaSemanal > 0)
           Text(
             'Gerando ${_userData.frequenciaSemanal} treinos personalizados...',
@@ -1161,7 +1161,7 @@ Widget _buildDayChip(String label, int dayNumber) {
         
         const SizedBox(height: 16),
         
-        // ✅ NOVO: Aviso sobre tempo de espera
+        //  Aviso sobre tempo de espera
         Text(
           '⏱️ Isso pode levar até 90 segundos...',
           style: TextStyle(
@@ -1518,7 +1518,7 @@ Widget _buildDayChip(String label, int dayNumber) {
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOut,
         );
-     // ✅ NOVO: Se avançou para página 7 (loading), iniciar geração automaticamente
+     //  Se avançou para página 7 (loading), iniciar geração automaticamente
       if (_currentPage == 6) {  // Estava na Step 6A, agora vai para Step 7
         // Pequeno delay para garantir que a animação de transição termine
         Future.delayed(const Duration(milliseconds: 500), () {

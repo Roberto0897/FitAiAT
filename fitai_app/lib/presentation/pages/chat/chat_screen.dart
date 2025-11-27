@@ -24,7 +24,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _initializeChat() async {
     await _chatService.startConversation(
-      type: ConversationType.generalFitness, // ✅ Corrigido: usando enum
+      type: ConversationType.generalFitness, 
       forceNew: false,
     );
   }
@@ -56,7 +56,7 @@ class _ChatScreenState extends State<ChatScreen> {
     // Aqui você pode adicionar analytics ou logging
   }
 
-  // ✅ Corrigido: convertendo String para enum MessageReaction
+  // convertendo String para enum MessageReaction
   Future<void> _sendFeedback(
     int messageId,
     String reaction,
@@ -307,11 +307,7 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
                   height: 1.4,
                 ),
               ),
-
-              // ============================================================
-              // 🔥 BOTÕES DE OPÇÃO (se existirem)
-              // ============================================================
-              // ✅ Agora usando a propriedade options diretamente
+              //  usando a propriedade options diretamente
               if (message.hasOptions)
                 Padding(
                   padding: EdgeInsets.only(top: 12.0),
@@ -322,7 +318,7 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
         ),
 
         // ============================================================
-        // FEEDBACK (👍 👎) - APENAS PARA MENSAGENS DA IA
+        // FEEDBACK - APENAS PARA MENSAGENS DA IA
         // ============================================================
         if (!message.isUser)
           MouseRegion(
@@ -370,7 +366,7 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     );
   }
 
-  // ✅ Método auxiliar para verificar se há opções
+  //  Método auxiliar para verificar se há opções
   bool _hasOptions(ChatMessage message) {
     try {
       // Tenta acessar a propriedade options se existir
@@ -381,7 +377,7 @@ class _ChatMessageWidgetState extends State<ChatMessageWidget> {
     }
   }
 
-  // ✅ Método auxiliar para obter as opções
+  //  Método auxiliar para obter as opções
   List<Map<String, dynamic>> _getOptions(ChatMessage message) {
     try {
       final options = (message as dynamic).options;

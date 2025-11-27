@@ -51,7 +51,7 @@ void initState() {
     String? firstMessage;
     
     if (widget.initialContext == 'workout_generation') {
-      // 🔥 USA workout_consultation (tipo existente no backend)
+      // USA workout_consultation (tipo existente no backend)
       conversationType = ConversationType.workoutConsultation;
       firstMessage = widget.initialMessage ?? 
           '🏋️ Olá! Gostaria de criar um treino personalizado para mim baseado no meu perfil e objetivos.';
@@ -59,7 +59,7 @@ void initState() {
       debugPrint('🤖 CHATBOT: Iniciando geração de treino (como workout_consultation)');
       
     } else if (widget.initialContext == 'workout_modification' && widget.workoutId != null) {
-      // 🔥 USA workout_consultation (tipo existente no backend)
+      //  USA workout_consultation (tipo existente no backend)
       conversationType = ConversationType.workoutConsultation;
       firstMessage = widget.initialMessage ?? 
           '✏️ Quero modificar meu treino atual (ID: ${widget.workoutId}). Pode me ajudar a ajustá-lo?';

@@ -1,4 +1,4 @@
-// Widget de Cards Redondos de Grupos Musculares - DESIGN PREMIUM
+// Widget de Cards Redondos de Grupos Musculares 
 // Localização: lib/features/dashboard/reports/widgets/muscle_group_cards_widget.dart
 
 import 'package:flutter/material.dart';
@@ -250,7 +250,7 @@ class MuscleGroupCardsWidget extends StatelessWidget {
     );
   }
 
-  // 🎨 DADOS PERSONALIZADOS PARA CADA GRUPO MUSCULAR
+  //  DADOS PERSONALIZADOS PARA CADA GRUPO MUSCULAR
   Map<String, dynamic> _getMuscleData(String muscleName) {
     final name = muscleName.toLowerCase();
     

@@ -26,7 +26,7 @@ class _DashboardPageState extends State<DashboardPage> {
       context.read<UserProfileProvider>().loadProfile();
       context.read<DashboardProvider>().loadDashboard();
 
-      // NOVO: Carregar recomendação inteligente
+      //  Carregar recomendação inteligente
       context.read<DashboardProvider>().loadSmartRecommendation();
     });
   }
@@ -78,7 +78,7 @@ class _DashboardPageState extends State<DashboardPage> {
       context.read<UserProfileProvider>().loadProfile(),
       context.read<DashboardProvider>().loadDashboard(),
 
-      // NOVO: Recarregar recomendação ao fazer pull-to-refresh
+      // Recarregar recomendação ao fazer pull-to-refresh
       context.read<DashboardProvider>().loadSmartRecommendation(),
     ]);
   }
@@ -300,16 +300,16 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
 Widget _buildTodayWorkoutCard(DashboardProvider provider) {
-  // ✅ CORREÇÃO: Verificar se tem qualquer tipo de recomendação (workout OU descanso)
+  //  Verificar se tem qualquer tipo de recomendação (workout OU descanso)
   final hasRecommendation = provider.hasSmartRecommendation;
   final analysis = provider.analysisData;
   final workout = provider.smartRecommendation;
   
-  // ✅ NOVO: Detectar se é recomendação de descanso
+  //  Detectar se é recomendação de descanso
   final shouldRest = analysis['recommendation_type'] == 'rest';
   final isOffSchedule = analysis['recommendation_type'] == 'reschedule';
   
-  // ✅ Definir título e ícone baseado no tipo
+  //  Definir título e ícone baseado no tipo
   String title;
   IconData iconData;
   Color iconColor;
@@ -437,7 +437,7 @@ Widget _buildTodayWorkoutCard(DashboardProvider provider) {
             ],
           ),
           
-          // ✅ NOVO: Mostrar análise para TODOS os tipos de recomendação
+          // Mostrar análise para TODOS os tipos de recomendação
           if ((hasRecommendation || shouldRest || isOffSchedule) && !provider.isLoading) ...[
             const SizedBox(height: 16),
             
@@ -482,7 +482,7 @@ Widget _buildTodayWorkoutCard(DashboardProvider provider) {
             
             const SizedBox(height: 12),
             
-            // ✅ NOVO: Fatores de personalização (para todos os tipos)
+            //  Fatores de personalização (para todos os tipos)
             if (provider.personalizationFactors.isNotEmpty) ...[
               Container(
                 padding: const EdgeInsets.all(12),
@@ -611,7 +611,7 @@ Widget _buildTodayWorkoutCard(DashboardProvider provider) {
           
           const SizedBox(height: 16),
           
-          // ✅ NOVO: Botão adaptado ao tipo de recomendação
+          // Botão adaptado ao tipo de recomendação
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -624,7 +624,7 @@ Widget _buildTodayWorkoutCard(DashboardProvider provider) {
                           try {
                             debugPrint('🏁 Iniciando treino recomendado ID: $workoutId');
                             
-                            // ✅ PASSO 1: Carregar detalhes do treino
+                            //  PASSO 1: Carregar detalhes do treino
                             final response = await ApiService.getWorkoutDetail(workoutId);
                             final workoutDetails = response['workout'] ?? response;
                             final exercisesList = response['exercises'] as List? ?? [];
@@ -633,7 +633,7 @@ Widget _buildTodayWorkoutCard(DashboardProvider provider) {
                               throw Exception('Treino sem exercícios');
                             }
                             
-                            // ✅ PASSO 2: Converter exercícios para ExerciseModel
+                            //  PASSO 2: Converter exercícios para ExerciseModel
                             final exercises = exercisesList.map((exerciseData) {
                               final exercise = exerciseData is Map && exerciseData.containsKey('exercise')
                                   ? exerciseData['exercise']
@@ -656,7 +656,7 @@ Widget _buildTodayWorkoutCard(DashboardProvider provider) {
                               );
                             }).toList();
                             
-                            // ✅ PASSO 3: Mostrar loading
+                            //  PASSO 3: Mostrar loading
                             if (mounted) {
                               showDialog(
                                 context: context,
@@ -669,7 +669,7 @@ Widget _buildTodayWorkoutCard(DashboardProvider provider) {
                               );
                             }
                             
-                            // ✅ PASSO 4: Iniciar sessão
+                            //  PASSO 4: Iniciar sessão
                             final sessionResponse = await ApiService.startWorkoutSession(workoutId);
                             final sessionId = sessionResponse['session_id'];
                             
@@ -678,7 +678,7 @@ Widget _buildTodayWorkoutCard(DashboardProvider provider) {
                             // Fechar loading
                             if (mounted) Navigator.pop(context);
                             
-                            // ✅ PASSO 5: Navegar DIRETO para ExerciseExecution
+                            //  PASSO 5: Navegar DIRETO para ExerciseExecution
                             if (mounted) {
                               AppRouter.goToExerciseExecution(
                                 exercise: exercises[0],
@@ -687,7 +687,7 @@ Widget _buildTodayWorkoutCard(DashboardProvider provider) {
                                 allExercises: exercises,
                                 initialWorkoutSeconds: 0,
                                 isFullWorkout: true,
-                                sessionId: sessionId,  // ✅ PASSA O SESSION ID
+                                sessionId: sessionId,  //  PASSA O SESSION ID
                                 workoutId: workoutId,
                               );
                             }
@@ -896,12 +896,12 @@ Widget _buildInfoChip({required String icon, required String label}) {
         ),
         const SizedBox(height: 16),
         
-        // 🔥 BOTÃO 1: GERAR NOVO TREINO
+        //  BOTÃO 1: GERAR NOVO TREINO
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: () {
-              // 🔥 PASSAR CONTEXTO PARA O CHATBOT
+              //  PASSAR CONTEXTO PARA O CHATBOT
               AppRouter.goToChatBot(
                 initialContext: 'workout_generation',
                 initialMessage: 'Olá! Gostaria de criar um treino personalizado baseado no meu perfil.',
@@ -995,7 +995,7 @@ Widget _buildInfoChip({required String icon, required String label}) {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ✅ CABEÇALHO
+          //  CABEÇALHO
           Row(
             children: [
               Container(
@@ -1026,7 +1026,7 @@ Widget _buildInfoChip({required String icon, required String label}) {
           ),
           const SizedBox(height: 12),
           
-          // ✅ CONTEÚDO PRINCIPAL (SEM SCROLL - APENAS FLEXIBLE)
+          //  CONTEÚDO PRINCIPAL (SEM SCROLL - APENAS FLEXIBLE)
           Flexible(
             child: Container(
               width: double.infinity,
@@ -1056,7 +1056,7 @@ Widget _buildInfoChip({required String icon, required String label}) {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // ✅ ÍCONE + TÍTULO COMPLETO
+                        //  ÍCONE + TÍTULO COMPLETO
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1086,7 +1086,7 @@ Widget _buildInfoChip({required String icon, required String label}) {
                         ),
                         const SizedBox(height: 10),
                         
-                        // ✅ MENSAGEM (COM maxLines PARA EVITAR CRESCIMENTO EXCESSIVO)
+                        //  MENSAGEM (COM maxLines PARA EVITAR CRESCIMENTO EXCESSIVO)
                         Flexible(
                           child: Text(
                             provider.aiRecommendation.isNotEmpty
@@ -1103,7 +1103,7 @@ Widget _buildInfoChip({required String icon, required String label}) {
                           ),
                         ),
                         
-                        // ✅ EMOJI + CONTEXTO
+                        //  EMOJI + CONTEXTO
                         if (provider.hasDailyAIRecommendation) ...[
                           const SizedBox(height: 10),
                           Row(
@@ -1141,7 +1141,7 @@ Widget _buildInfoChip({required String icon, required String label}) {
           
           const SizedBox(height: 10),
           
-          // ✅ RODAPÉ DINÂMICO
+          //  RODAPÉ DINÂMICO
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -1244,7 +1244,7 @@ Widget _buildInfoChip({required String icon, required String label}) {
       ),
     );
   }
-  // ✅ MÉTODO AUXILIAR 1: Mapear dificuldade
+  //  MÉTODO AUXILIAR 1: Mapear dificuldade
 String _mapDifficulty(String? difficulty) {
   switch (difficulty?.toLowerCase()) {
     case 'beginner':
@@ -1258,7 +1258,7 @@ String _mapDifficulty(String? difficulty) {
   }
 }
 
-// ✅ MÉTODO AUXILIAR 2: Mapear grupo muscular
+//  MÉTODO AUXILIAR 2: Mapear grupo muscular
 String _mapMuscleGroup(String? group) {
   switch (group?.toLowerCase()) {
     case 'chest':
@@ -1281,7 +1281,7 @@ String _mapMuscleGroup(String? group) {
   }
 }
 
-// ✅ MÉTODO AUXILIAR 3: Dialog de sessão ativa
+//  MÉTODO AUXILIAR 3: Dialog de sessão ativa
 void _showActiveSessionDialog({
   required int sessionId,
   required String workoutName,

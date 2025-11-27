@@ -394,7 +394,7 @@ class _ExerciseExecutionPageState extends State<ExerciseExecutionPage> {
     return Scaffold(
   backgroundColor: AppColors.background,
   body: SafeArea(
-    child: SingleChildScrollView(  // ✅ Adicione isto aqui
+    child: SingleChildScrollView(  
       child: Column(
         children: [
           _buildHeader(),
@@ -944,7 +944,7 @@ class _ExerciseExecutionPageState extends State<ExerciseExecutionPage> {
             children: [
               GestureDetector(
                 onTap: enabled ? () {
-                  // ✅ Atualizar valor diretamente no controller, sem setState
+                  //  Atualizar valor diretamente no controller, sem setState
                   if (isWeight) {
                     double currentValue = double.tryParse(controller.text.replaceAll(',', '.')) ?? 0.0;
                     double newValue = (currentValue - 1).clamp(0.0, double.infinity);
@@ -971,7 +971,7 @@ class _ExerciseExecutionPageState extends State<ExerciseExecutionPage> {
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: enabled ? Colors.white : AppColors.textHint),
                   decoration: const InputDecoration(isDense: true, contentPadding: EdgeInsets.zero, border: InputBorder.none),
                   onChanged: (value) {
-                    // ✅ Atualizar apenas o valor interno, sem setState
+                    //  Atualizar apenas o valor interno, sem setState
                     if (isWeight) {
                       _series[index].weight = double.tryParse(value.replaceAll(',', '.')) ?? 0.0;
                     } else {
@@ -982,7 +982,7 @@ class _ExerciseExecutionPageState extends State<ExerciseExecutionPage> {
               ),
               GestureDetector(
                 onTap: enabled ? () {
-                  // ✅ Atualizar valor diretamente no controller, sem setState
+                  //  Atualizar valor diretamente no controller, sem setState
                   if (isWeight) {
                     double currentValue = double.tryParse(controller.text.replaceAll(',', '.')) ?? 0.0;
                     double newValue = currentValue + 1;

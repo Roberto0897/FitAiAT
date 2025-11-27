@@ -61,15 +61,15 @@ def list_workouts(request):
 @permission_classes([IsAuthenticated])
 def recommended_workouts(request):
     """
-    🤖 RECOMENDADOS - APENAS TREINOS DE IA DO USUÁRIO ATUAL
+     RECOMENDADOS - APENAS TREINOS DE IA DO USUÁRIO ATUAL
     
-    ✅ Retorna SOMENTE:
+     Retorna SOMENTE:
     - Treinos gerados pela IA (is_recommended=True)
     - DO usuário logado (created_by_user=request.user)
     - Personalizados (is_personalized=True)
     - Ativos (is_active=True)
     
-    ❌ NÃO retorna:
+     NÃO retorna:
     - Treinos de IA de outros usuários
     - Treinos do catálogo
     - Treinos criados manualmente pelo usuário
@@ -78,7 +78,7 @@ def recommended_workouts(request):
         profile = UserProfile.objects.get(user=request.user)
         
         # ============================================================
-        # ✅ FILTRO CORRETO: APENAS TREINOS DE IA DO USUÁRIO ATUAL
+        #  FILTRO : APENAS TREINOS DE IA DO USUÁRIO ATUAL
         # ============================================================
         
          # Query base
@@ -103,7 +103,7 @@ def recommended_workouts(request):
         for workout in workouts:
             exercise_count = WorkoutExercise.objects.filter(workout=workout).count()
             
-            # ✅ Verificação extra de segurança
+            #  Verificação extra de segurança
             if workout.created_by_user != request.user:
                 print(f'⚠️ ALERTA: Treino {workout.id} não pertence ao usuário!')
                 continue  # Pula este treino
@@ -117,10 +117,10 @@ def recommended_workouts(request):
                 'workout_type': workout.workout_type,
                 'calories_estimate': workout.calories_estimate,
                 'exercise_count': exercise_count,
-                'is_recommended': True,            # ✅ Sempre True nesta lista (treinos de IA)
-                'is_personalized': True,           # ✅ Sempre True nesta lista
-                'created_at': workout.created_at,  # ✅ Data de criação
-                'source': 'ai_recommendation',     # ✅ Identificador da fonte
+                'is_recommended': True,            #  Sempre True nesta lista (treinos de IA)
+                'is_personalized': True,           #  Sempre True nesta lista
+                'created_at': workout.created_at,  #  Data de criação
+                'source': 'ai_recommendation',     #  Identificador da fonte
                 'recommendation_reason': f"Treino personalizado pela IA baseado no seu perfil"
             })
         
@@ -136,7 +136,7 @@ def recommended_workouts(request):
         })
         
     except UserProfile.DoesNotExist:
-        # ✅ Fallback: Retornar VAZIO se não tem perfil
+        #  Fallback: Retornar VAZIO se não tem perfil
         print(f'⚠️ [RECOMENDADOS] Usuário {request.user.username} sem perfil')
         
         return Response({
@@ -271,7 +271,7 @@ def workout_history(request):
         exercise_logs = ExerciseLog.objects.filter(session=session)
         total_exercises = exercise_logs.count()
         
-        # ✅ CORREÇÃO: Se a sessão foi concluída, contar todos os logs como completos
+        #  CORREÇÃO: Se a sessão foi concluída, contar todos os logs como completos
         # (exceto os pulados)
         if session.completed:
             completed_exercises = exercise_logs.exclude(skipped=True).count()
@@ -295,7 +295,7 @@ def workout_history(request):
             'category': session.workout.workout_type or 'Geral',
             'muscle_groups': muscle_groups,
             'focus_areas': muscle_groups,
-            'exercises_completed': completed_exercises,  # ✅ Agora correto
+            'exercises_completed': completed_exercises,  
             'total_exercises': total_exercises,
             'completed': True,
             'user_rating': session.user_rating,
@@ -355,7 +355,7 @@ def current_session_status(request):
         return Response({"message": "Nenhuma sessão ativa encontrada"}, 
                        status=status.HTTP_404_NOT_FOUND)
         
-# ADICIONAR AO FINAL DO ARQUIVO apps/workouts/views.py
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -538,7 +538,7 @@ def complete_workout_session(request, session_id=None):
         calories_burned = request.data.get('calories_burned')
         user_notes = request.data.get('notes', '')
         
-        # ✅ CORREÇÃO 1: CALCULAR DURAÇÃO REAL
+        #  1: CALCULAR DURAÇÃO REAL
         if session.started_at:
             duration = timezone.now() - session.started_at
             duration_minutes = int(duration.total_seconds() / 60)
@@ -549,7 +549,7 @@ def complete_workout_session(request, session_id=None):
             session.duration_minutes = session.workout.estimated_duration or 30
             print(f'⚠️ Usando duração estimada: {session.duration_minutes} min')
         
-        # ✅ CORREÇÃO 2: SALVAR GRUPOS MUSCULARES REAIS
+        #  2: SALVAR GRUPOS MUSCULARES REAIS
         # Buscar os exercícios realizados na sessão
         exercise_logs = ExerciseLog.objects.filter(
             session=session,
@@ -624,10 +624,10 @@ def complete_workout_session(request, session_id=None):
                 "id": session.id,
                 "workout_name": session.workout.name,
                 "completed_at": session.completed_at,
-                "duration_minutes": session.duration_minutes,  # ✅ Duração REAL
+                "duration_minutes": session.duration_minutes,  #  Duração REAL
                 "user_rating": session.user_rating,
                 "calories_burned": session.calories_burned,
-                "muscle_groups_worked": muscle_groups_list  # ✅ Grupos REAIS
+                "muscle_groups_worked": muscle_groups_list  #  Grupos REAIS
             },
             "exercise_summary": {
                 "total_exercises": total_exercises,
@@ -649,7 +649,7 @@ def complete_workout_session(request, session_id=None):
             status=status.HTTP_404_NOT_FOUND
         )
 
-@api_view(['POST'])  # ✅ Aceita DELETE e POST
+@api_view(['POST'])  #  Aceita DELETE e POST
 @permission_classes([IsAuthenticated])
 def cancel_active_session(request, session_id):
     """Cancela uma sessão ativa específica"""
@@ -1170,7 +1170,7 @@ def update_personalized_workout(request, workout_id):
             status=status.HTTP_404_NOT_FOUND
         )
 # ============================================================
-# 🔧 EDITAR TREINO PERSONALIZADO - ADICIONAR AO views.py
+#  EDITAR TREINO PERSONALIZADO - ADICIONAR AO views.py
 # ============================================================
 
 from django.db.models import Max
@@ -1179,7 +1179,7 @@ from django.db.models import Max
 @permission_classes([IsAuthenticated])
 def get_workout_for_editing(request, workout_id):
     """
-    🔍 Busca treino completo para edição
+     Busca treino completo para edição
     Retorna todos os dados incluindo exercícios
     """
     try:
@@ -1269,7 +1269,7 @@ def get_workout_for_editing(request, workout_id):
 @permission_classes([IsAuthenticated])
 def edit_workout_complete(request, workout_id):
     """
-    ✏️ EDIÇÃO COMPLETA: Atualiza treino e seus exercícios
+     Atualiza treino e seus exercícios
     
     Body esperado:
     {
@@ -1501,7 +1501,7 @@ def edit_workout_complete(request, workout_id):
 @permission_classes([IsAuthenticated])
 def get_available_exercises_for_editing(request):
     """
-    🔍 Lista TODOS os exercícios disponíveis para adicionar ao treino
+     Lista TODOS os exercícios disponíveis para adicionar ao treino
     Pode filtrar por:
     - muscle_group (query param)
     - difficulty_level (query param)
@@ -1569,13 +1569,13 @@ def get_available_exercises_for_editing(request):
 @permission_classes([IsAuthenticated])
 def delete_workout(request, workout_id):
     """
-    🗑️ Deleta um treino usando SOFT DELETE
+     Deleta um treino usando SOFT DELETE
     
     Regras:
-    - ✅ Treinos personalizados: só o criador pode deletar
-    - ❌ Treinos do catálogo: apenas admins
-    - ⚠️ Não deleta fisicamente, apenas marca como inativo
-    - ✅ Pode ser restaurado depois
+    -  Treinos personalizados: só o criador pode deletar
+    -  Treinos do catálogo: apenas admins
+    -  Não deleta fisicamente, apenas marca como inativo
+    -  Pode ser restaurado depois
     """
     try:
         workout = Workout.objects.get(id=workout_id)
@@ -1694,7 +1694,7 @@ def delete_workout(request, workout_id):
 @permission_classes([IsAuthenticated])
 def restore_workout(request, workout_id):
     """
-    ♻️ Restaura um treino deletado (soft delete)
+     Restaura um treino deletado (soft delete)
     """
     try:
         # Buscar treino deletado
@@ -2017,7 +2017,7 @@ def cancel_active_session(request, session_id):
     
 
 # ============================================================
-# ✅ FUNÇÃO AUXILIAR: Extrair dados do UserProfile REAL
+#  FUNÇÃO AUXILIAR: Extrair dados do UserProfile REAL
 # ============================================================
 
 def _extract_user_data_from_profile(profile):
@@ -2032,13 +2032,13 @@ def _extract_user_data_from_profile(profile):
     """
     user = profile.user
     
-    # ✅ Nome (priorizar first_name, fallback username)
+    #  Nome (priorizar first_name, fallback username)
     nome = user.first_name or user.username
     
-    # ✅ Idade
+    #  Idade
     idade = profile.age or 25
     
-    # ✅ Sexo
+    #  Sexo
     gender_map = {
         'M': 'Masculino',
         'F': 'Feminino',
@@ -2047,12 +2047,12 @@ def _extract_user_data_from_profile(profile):
     }
     sexo = gender_map.get(profile.gender, 'Não informado')
     
-    # ✅ Peso e altura
+    #  Peso e altura
     peso_atual = profile.current_weight or 70
     peso_desejado = profile.target_weight or peso_atual
     altura = profile.height or 170
     
-    # ✅ Metas (converter choice para texto legível)
+    #  Metas (converter choice para texto legível)
     goal_map = {
         'lose_weight': 'Perder peso',
         'gain_muscle': 'Ganhar massa muscular',
@@ -2063,13 +2063,13 @@ def _extract_user_data_from_profile(profile):
     meta_principal = goal_map.get(profile.goal, 'Condicionamento geral')
     metas = [meta_principal]  # Lista para compatibilidade
     
-    # ✅ Áreas de foco (string CSV → lista)
+    #  Áreas de foco (string CSV → lista)
     if profile.focus_areas:
         areas_desejadas = [area.strip() for area in profile.focus_areas.split(',')]
     else:
         areas_desejadas = ['Corpo completo']
     
-    # ✅ Nível de atividade
+    #  Nível de atividade
     activity_map = {
         'sedentary': 'Sedentário',
         'light': 'Levemente ativo',
@@ -2080,15 +2080,15 @@ def _extract_user_data_from_profile(profile):
     }
     nivel_atividade = activity_map.get(profile.activity_level, 'Iniciante')
     
-    # ✅ Frequência semanal
+    #  Frequência semanal
     frequencia_semanal = profile.training_frequency or 3
     
-    # ✅ Dias preferidos (JSONField → lista nomes)
+    #  Dias preferidos (JSONField → lista nomes)
     dias_semana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
     preferred_days = profile.preferred_training_days or []
     dias_preferidos_nomes = [dias_semana[d] for d in preferred_days if 0 <= d <= 6]
     
-    # ✅ Horário preferido
+    #  Horário preferido
     time_map = {
         'morning': 'Manhã',
         'afternoon': 'Tarde',
@@ -2097,10 +2097,10 @@ def _extract_user_data_from_profile(profile):
     }
     horario_preferido = time_map.get(profile.preferred_workout_time, 'Flexível')
     
-    # ✅ Limitações físicas
+    #  Limitações físicas
     limitacoes = profile.physical_limitations or ''
     
-    # ✅ Equipamentos (inferir do goal + activity_level)
+    #  Equipamentos (inferir do goal + activity_level)
     # Se não tem campo explícito, fazer suposição razoável
     if profile.activity_level in ['sedentary', 'light']:
         equipamentos = 'Peso corporal e elásticos'
@@ -2109,7 +2109,7 @@ def _extract_user_data_from_profile(profile):
     else:
         equipamentos = 'Academia completa'
     
-    # ✅ Tempo disponível (inferir da frequência)
+    #  Tempo disponível (inferir da frequência)
     if frequencia_semanal <= 2:
         tempo_disponivel = '45-60 minutos'
     elif frequencia_semanal <= 4:
@@ -2117,7 +2117,7 @@ def _extract_user_data_from_profile(profile):
     else:
         tempo_disponivel = '20-30 minutos'
     
-    # ✅ Tipos de treino preferidos (inferir do goal)
+    #  Tipos de treino preferidos (inferir do goal)
     if profile.goal == 'lose_weight':
         tipos_treino = ['Cardio', 'HIIT', 'Circuito']
     elif profile.goal == 'gain_muscle':
@@ -2153,7 +2153,7 @@ def _extract_user_data_from_profile(profile):
 
 
 # ============================================================
-# ✅ PROMPT PLANO SEMANAL - Usando dados reais
+#  PROMPT PLANO SEMANAL - Usando dados reais
 # ============================================================
 
 def _build_weekly_plan_prompt(user_data):
@@ -2302,7 +2302,7 @@ Distribuição: {focos_texto}
 
 
 # ============================================================
-# ✅ PROMPT TREINO ÚNICO - Usando dados reais
+#  PROMPT TREINO ÚNICO - Usando dados reais
 # ============================================================
 
 def _build_onboarding_prompt(user_data):
@@ -2431,7 +2431,7 @@ Crie o treino perfeito para {nome}! 💪
 
 
 # ============================================================
-# ✅ ATUALIZAR A VIEW generate_onboarding_workout
+#  ATUALIZAR A VIEW generate_onboarding_workout
 # ============================================================
 
 @api_view(['POST'])
@@ -2444,7 +2444,7 @@ def generate_onboarding_workout(request):
         
         user = request.user
         
-        # ✅ BUSCAR PERFIL REAL
+        #  BUSCAR PERFIL REAL
         try:
             profile = user.userprofile
         except UserProfile.DoesNotExist:
@@ -2453,18 +2453,18 @@ def generate_onboarding_workout(request):
                 'message': 'Complete seu perfil antes de gerar treinos'
             }, status=400)
         
-        # ✅ EXTRAIR DADOS DO PERFIL REAL
+        #  EXTRAIR DADOS DO PERFIL REAL
         user_data = _extract_user_data_from_profile(profile)
         
         print(f"🤖 Gerando treino para: {user_data['nome']}")
         print(f"   Nível: {user_data['nivel_atividade']}")
         print(f"   Frequência: {user_data['frequencia_semanal']}x/semana")
         
-        # ✅ VERIFICAR SE É PLANO SEMANAL
+        #  VERIFICAR SE É PLANO SEMANAL
         frequencia = user_data['frequencia_semanal']
         generate_plan = frequencia > 1  # Plano se treina mais de 1x
         
-        # ✅ CONSTRUIR PROMPT
+        #  CONSTRUIR PROMPT
         if generate_plan:
             print(f"📅 Gerando PLANO SEMANAL: {frequencia} dias")
             ai_prompt = _build_weekly_plan_prompt(user_data)
@@ -2472,7 +2472,7 @@ def generate_onboarding_workout(request):
             print(f"📝 Gerando treino único")
             ai_prompt = _build_onboarding_prompt(user_data)
         
-        # ✅ CHAMAR IA
+        #  CHAMAR IA
         api_key = getattr(settings, 'GEMINI_API_KEY', '')
         if not api_key:
             raise ValueError("GEMINI_API_KEY não configurada")
@@ -2483,7 +2483,7 @@ def generate_onboarding_workout(request):
         
         generation_config = {
             'max_output_tokens': 16384,
-            'temperature': 0.7,  # ✅ Aumentar criatividade
+            'temperature': 0.7,  #  Aumentar criatividade
             'response_mime_type': 'application/json',
         }
         
@@ -2494,7 +2494,7 @@ def generate_onboarding_workout(request):
             raise ValueError("JSON inválido retornado pela IA")
 
         # ============================================================
-        # ✅ VALIDAÇÃO: Corrigir se IA retornou estrutura errada
+        #  VALIDAÇÃO: Corrigir se IA retornou estrutura errada
         # ============================================================
 
         if generate_plan:  # Deveria gerar MÚLTIPLOS treinos
@@ -2536,7 +2536,7 @@ def generate_onboarding_workout(request):
                     
                     plan_data['weekly_plan'] = workouts
         
-        # ✅ CRIAR TREINOS
+        #  CRIAR TREINOS
         if generate_plan and 'weekly_plan' in plan_data:
             created_workouts = []
             
@@ -2600,7 +2600,7 @@ def _create_ai_workout(user, workout_data, user_profile, is_part_of_plan=False, 
     description = workout_data.get('description', '')
     full_description = description + ai_metadata
     
-    # ✅ CRÍTICO: is_recommended=True
+    #  CRÍTICO: is_recommended=True
     workout = Workout.objects.create(
         name=workout_data.get('workout_name', 'Treino Personalizado'),
         description=full_description,
@@ -2611,7 +2611,7 @@ def _create_ai_workout(user, workout_data, user_profile, is_part_of_plan=False, 
         calories_estimate=workout_data.get('calories_estimate', 200),
         workout_type=workout_data.get('workout_type', 'full_body'),
         is_recommended=True,
-        is_personalized=True,      # ✅ Vai para "Recomendados FitAI"
+        is_personalized=True,      #  Vai para "Recomendados FitAI"
         created_by_user=user,
     )
     
@@ -2637,7 +2637,7 @@ def _create_ai_workout(user, workout_data, user_profile, is_part_of_plan=False, 
             }
         )
         
-        # ✅ NOVO: SE É NOVO OU NÃO TEM VÍDEO, BUSCAR NA BIBLIOTECA
+        #  SE É NOVO OU NÃO TEM VÍDEO, BUSCAR NA BIBLIOTECA
         if created or not exercise.video_url:
             video_url = find_video_for_exercise(exercise_name, muscle_group)
             
@@ -2737,13 +2737,13 @@ def smart_recommendation_view(request):
     🧠 Recomendação Inteligente CORRIGIDA
     
     Considera:
-    ✅ training_frequency (meta semanal REAL)
-    ✅ preferred_training_days (dias preferidos)
-    ✅ min_rest_days_between_workouts (descanso mínimo)
-    ✅ activity_level (nível correto → dificuldade)
-    ✅ goal (objetivo do usuário)
-    ✅ physical_limitations (lesões/restrições)
-    ✅ preferred_workout_time (horário preferido)
+     training_frequency (meta semanal REAL)
+     preferred_training_days (dias preferidos)
+     min_rest_days_between_workouts (descanso mínimo)
+     activity_level (nível correto → dificuldade)
+     goal (objetivo do usuário)
+     physical_limitations (lesões/restrições)
+     preferred_workout_time (horário preferido)
     
     Busca treinos:
     1. Treinos gerados pela IA (is_recommended=True + created_by_user)
@@ -2787,7 +2787,7 @@ def smart_recommendation_view(request):
             completed=True
         ).order_by('-completed_at').first()
         
-        # ✅ CORRIGIDO: None se nunca treinou
+        #  None se nunca treinou
         days_since_last = None
         last_workout_date = None
         
@@ -2805,13 +2805,13 @@ def smart_recommendation_view(request):
             started_at__gte=week_ago
         ).count()
         
-        # ✅ USAR META REAL DO PERFIL
+        #  USAR META REAL DO PERFIL
         weekly_goal = profile.training_frequency
         
         # Dia da semana atual (0=Dom, 6=Sáb)
         today_weekday = (timezone.now().weekday() + 1) % 7
         
-        # ✅ VERIFICAR SE É DIA PREFERIDO
+        #  VERIFICAR SE É DIA PREFERIDO
         is_preferred_day = profile.is_preferred_training_day(today_weekday)
         is_rest_day = profile.is_preferred_rest_day(today_weekday)
         
@@ -2896,7 +2896,7 @@ def smart_recommendation_view(request):
         recommended_workout = None
         recommendation_source = None
         
-        # ✅ MAPEAR activity_level → difficulty_level
+        #  MAPEAR activity_level → difficulty_level
         difficulty_map = {
             'sedentary': 'beginner',
             'light': 'beginner',
@@ -3233,7 +3233,7 @@ def _get_simple_reason(days_since_last, workouts_this_week, weekly_goal):
     return "Recomeçando! Vamos com calma e progressão 🎯"
 
 # ============================================================
-# ✅ FUNÇÃO AUXILIAR: Validar propriedade do treino
+#  FUNÇÃO AUXILIAR: Validar propriedade do treino
 # ============================================================
 
 def validate_workout_ownership(workout, user):

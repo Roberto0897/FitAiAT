@@ -121,7 +121,7 @@ class UserRegistrationData {
     };
   }
 
-  // ✅ NOVO: Conversão específica para Firebase (sem senha)
+  //  Conversão específica para Firebase (sem senha)
   Map<String, dynamic> toFirebaseMap() {
     return {
       'nome': nome,

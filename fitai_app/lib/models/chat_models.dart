@@ -50,7 +50,7 @@ class ChatMessage {
   final double? confidence;
   final String? reaction;
   final Map<String, dynamic>? metadata;
-  final List<Map<String, dynamic>>? options; // ✅ ADICIONADO: Botões de ação
+  final List<Map<String, dynamic>>? options; //Botões de ação
 
   ChatMessage({
     this.id,
@@ -61,11 +61,11 @@ class ChatMessage {
     this.confidence,
     this.reaction,
     this.metadata,
-    this.options, // ✅ ADICIONADO
+    this.options, 
   });
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
-    // ✅ Processar options se existir
+    //  Processar options se existir
     List<Map<String, dynamic>>? options;
     if (json['options'] != null && json['options'] is List) {
       options = List<Map<String, dynamic>>.from(
@@ -84,7 +84,7 @@ class ChatMessage {
       confidence: json['confidence_score']?.toDouble(),
       reaction: json['user_reaction'],
       metadata: json['ai_metadata'],
-      options: options, // ✅ ADICIONADO
+      options: options, 
     );
   }
 
@@ -98,11 +98,11 @@ class ChatMessage {
       if (confidence != null) 'confidence': confidence,
       if (reaction != null) 'reaction': reaction,
       if (metadata != null) 'metadata': metadata,
-      if (options != null) 'options': options, // ✅ ADICIONADO
+      if (options != null) 'options': options, 
     };
   }
 
-  /// ✅ NOVO: Helper para verificar se tem opções
+  ///  Helper para verificar se tem opções
   bool get hasOptions => options != null && options!.isNotEmpty;
 }
 
@@ -140,7 +140,7 @@ enum MessageReaction {
   const MessageReaction(this.value, this.label, this.emoji);
 }
 
-/// ✅ NOVO: Model para opções/botões de ação
+///  Model para opções/botões de ação
 class MessageOption {
   final String id;
   final String label;

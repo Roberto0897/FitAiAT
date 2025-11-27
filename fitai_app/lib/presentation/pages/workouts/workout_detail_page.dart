@@ -28,7 +28,7 @@ class _WorkoutDetailPageState extends State<WorkoutDetailPage> {
     _loadWorkoutExercises();
   }
 
-  // ✅ Carrega os exercícios do treino específico
+  //  Carrega os exercícios do treino específico
   Future<void> _loadWorkoutExercises() async {
     setState(() {
       _isLoadingExercises = true;
@@ -444,7 +444,7 @@ class _WorkoutDetailPageState extends State<WorkoutDetailPage> {
     );
   }
 
-  // ✅ MÉTODO CORRIGIDO: Iniciar treino completo
+  // Iniciar treino completo
 Future<void> _startFullWorkout() async {
   if (_workoutExercises.isEmpty) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -495,7 +495,7 @@ Future<void> _startFullWorkout() async {
     }
 
   } on ActiveSessionException catch (e) {
-    // ✅ Tratamento específico para sessão ativa
+    //  Tratamento específico para sessão ativa
     if (mounted) Navigator.pop(context); // Fechar loading
     
     print('⚠️ Sessão ativa detectada:');
@@ -529,7 +529,7 @@ Future<void> _startFullWorkout() async {
   }
 }
 
-// ✅ MÉTODO NOVO: Mostrar dialog de sessão ativa
+//  Mostrar dialog de sessão ativa
 void _showActiveSessionDialog({
   required int sessionId,
   required String workoutName,
@@ -687,7 +687,7 @@ void _showActiveSessionDialog({
     ),
   );
 }
-  // ✅ MÉTODO NOVO: Lidar com erro de sessão ativa
+  //   Lidar com erro de sessão ativa
   Future<void> _handleActiveSessionError() async {
     try {
       print('🔍 Buscando informações da sessão ativa...');
@@ -880,7 +880,7 @@ void _showActiveSessionDialog({
     }
   }
 
-  // ✅ MÉTODO CORRIGIDO: Cancelar sessão anterior e iniciar nova
+  //  Cancelar sessão anterior e iniciar nova
 Future<void> _cancelAndStartNew(int sessionId) async {
   try {
     // Mostrar loading
@@ -929,7 +929,7 @@ Future<void> _cancelAndStartNew(int sessionId) async {
   }
 }
 
-  // ✅ MÉTODO AUXILIAR: Formatar data/hora
+  //  MÉTODO AUXILIAR: Formatar data/hora
 String _formatDateTime(String isoString) {
   try {
     final dateTime = DateTime.parse(isoString);
@@ -948,7 +948,7 @@ String _formatDateTime(String isoString) {
   }
 }
 
-  // ✅ MÉTODO CORRIGIDO: Visualizar exercício (preview)
+  // Visualizar exercício (preview)
   void _openExercisePreview(ExerciseModel exercise, int index) {
     showDialog(
       context: context,
@@ -980,15 +980,15 @@ String _formatDateTime(String isoString) {
             onPressed: () {
               Navigator.pop(context);
               
-              // ✅ Navegar em modo PREVIEW
+              //  Navegar em modo PREVIEW
               AppRouter.goToExerciseExecution(
                 exercise: exercise,
                 totalExercises: _workoutExercises.length,
                 currentExerciseIndex: index + 1,
                 allExercises: _workoutExercises,
                 initialWorkoutSeconds: 0,
-                isFullWorkout: false,  // ✅ NÃO é treino completo
-                isPreviewMode: true,   // ✅ É modo visualização
+                isFullWorkout: false,  //  NÃO é treino completo
+                isPreviewMode: true,   //  É modo visualização
               );
             },
             child: const Text('Visualizar'),

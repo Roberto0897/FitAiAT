@@ -696,7 +696,7 @@ Widget _buildWeightChart(List<WeightEntry> weightHistory) {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: recentWeights.asMap().entries.map((entry) {
             final index = entry.key;
-            final weightEntry = entry.value;  // ⭐ RENOMEADO para evitar conflito
+            final weightEntry = entry.value;  //  RENOMEADO para evitar conflito
             final weight = weightEntry.weight;
             final date = weightEntry.date;
             
@@ -705,7 +705,7 @@ Widget _buildWeightChart(List<WeightEntry> weightHistory) {
 
             final isLatest = index == recentWeights.length - 1;
             final isLowest = weight == minWeight;
-            final barColor = isLatest  // ⭐ RENOMEADO de 'color' para 'barColor'
+            final barColor = isLatest  //  RENOMEADO de 'color' para 'barColor'
                 ? const Color(0xFF00BCD4)
                 : isLowest
                     ? Colors.orange.shade400
@@ -731,12 +731,12 @@ Widget _buildWeightChart(List<WeightEntry> weightHistory) {
                       width: double.infinity,
                       height: barHeight,
                       decoration: BoxDecoration(
-                        color: barColor.withOpacity(0.7),  // ⭐ Usando barColor
+                        color: barColor.withOpacity(0.7),  //  Usando barColor
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(6),
                         ),
                         border: Border.all(
-                          color: barColor,  // ⭐ Usando barColor
+                          color: barColor,  //  Usando barColor
                           width: isLatest ? 2 : 1,
                         ),
                       ),
@@ -1211,7 +1211,7 @@ class _WorkoutHistorySectionState extends State<_WorkoutHistorySection> {
 
   // CARD PRINCIPAL DO ÚLTIMO TREINO
   Widget _buildLastWorkoutCard(WorkoutHistoryModel workout) {
-    // CORREÇÃO: Se completed=true, força 100%, senão calcula normalmente
+    //  Se completed=true, força 100%, senão calcula normalmente
     final progress = workout.completed 
         ? 1.0 
         : (workout.totalExercises > 0 
@@ -1543,7 +1543,7 @@ class _WorkoutHistorySectionState extends State<_WorkoutHistorySection> {
 
   // CARDS COMPACTOS DOS OUTROS TREINOS
   Widget _buildCompactWorkoutCard(WorkoutHistoryModel workout) {
-    // CORREÇÃO: Se completed=true, força 100%, senão calcula normalmente
+    //  Se completed=true, força 100%, senão calcula normalmente
     final progress = workout.completed 
         ? 1.0 
         : (workout.totalExercises > 0 

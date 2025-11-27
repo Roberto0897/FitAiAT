@@ -16,6 +16,7 @@ from apps.users.models import UserProfile
 from apps.workouts.models import Workout, WorkoutSession
 from apps.recommendations.services.ai_service import AIService
 import traceback
+from google.generativeai.types import HarmCategory, HarmBlockThreshold 
 
 logger = logging.getLogger(__name__)
 
@@ -483,57 +484,53 @@ class WorkoutPlanExtractor:
     
     @staticmethod
     def _extract_exercises_by_day_improved(content: str) -> Dict:
-        """
-        🔥 VERSÃO MELHORADA - Detecta múltiplos formatos
-        
-        Formatos suportados:
-        - **Dia 1: Peito**
-        - Dia 1: Peito
-        - Segunda: Peito
-        - **Segunda-feira: Peito**
-        """
+        """🔥 VERSÃO CORRIGIDA - Evita duplicatas e valida nomes"""
         exercises_by_day = {}
+        processed_positions = set()
         
-        # 🔥 Padrões MELHORADOS (case-insensitive com re.IGNORECASE)
         day_patterns = [
-            # Formato: **Dia 1:** ou Dia 1:
-            (r'\*?\*?dia\s*(\d+):?\*?\*?\s*([^\n*]*)', 'dia_{}'),
-            
-            # Formato: **Segunda:** ou Segunda:
-            (r'\*?\*?(segunda|terça|quarta|quinta|sexta|sábado|domingo):?\*?\*?\s*([^\n*]*)', '{}'),
-            
-            # Formato: **Segunda-feira:** 
-            (r'\*?\*?(segunda-feira|terça-feira|quarta-feira|quinta-feira|sexta-feira|sábado|domingo):?\*?\*?\s*([^\n*]*)', '{}'),
+            (r'\*?\*?dia\s*(\d+):?\*?\*?\s*([^\n*]+)', 'dia_{}'),
+            (r'\*?\*?(segunda|terça|quarta|quinta|sexta|sábado|domingo):?\*?\*?\s*([^\n*]+)', '{}'),
         ]
         
         for pattern, key_format in day_patterns:
             matches = re.finditer(pattern, content, re.IGNORECASE | re.MULTILINE)
             
             for match in matches:
+                # Evitar processar mesma posição
+                if match.start() in processed_positions:
+                    continue
+                processed_positions.add(match.start())
+                
                 day_key = match.group(1)
                 day_title = match.group(2) if len(match.groups()) >= 2 else day_key
+                day_title = day_title.strip()
                 
-                # Formatar chave do dia
+                # 🔥 CRÍTICO: Validar título ANTES de continuar
+                if not day_title or day_title in ['.', '..', '*', '**', ':', '-'] or len(day_title) < 3:
+                    logger.warning(f"⚠️ Título inválido '{day_title}', pulando match na posição {match.start()}")
+                    continue
+                
+                # Formatar chave
                 if pattern.startswith(r'\*?\*?dia'):
                     formatted_key = key_format.format(day_key)
                 else:
                     formatted_key = day_key.lower().replace('-feira', '')
                 
+                # 🔥 CRÍTICO: Se chave já existe, renomear
+                if formatted_key in exercises_by_day:
+                    new_key = f"dia_{len(exercises_by_day) + 1}"
+                    logger.warning(f"⚠️ Chave '{formatted_key}' duplicada, renomeando para '{new_key}'")
+                    formatted_key = new_key
+                
                 logger.info(f"   🔍 Detectou dia: {formatted_key} - {day_title}")
                 
-                # Extrair exercícios deste dia
-                # Pegar texto até o próximo "**Dia" ou "**Segunda" ou fim
+                # Extrair texto do dia
                 start_pos = match.end()
-                
-                # Procurar próximo marcador de dia
-                next_day_pattern = r'\*?\*?(dia\s*\d+|segunda|terça|quarta|quinta|sexta|sábado|domingo)'
+                next_day_pattern = r'\*?\*?(dia\s*\d+|segunda|terça|quarta|quinta|sexta)'
                 next_match = re.search(next_day_pattern, content[start_pos:], re.IGNORECASE)
                 
-                if next_match:
-                    end_pos = start_pos + next_match.start()
-                else:
-                    end_pos = len(content)
-                
+                end_pos = start_pos + next_match.start() if next_match else len(content)
                 day_content = content[start_pos:end_pos]
                 
                 # Extrair exercícios
@@ -541,56 +538,73 @@ class WorkoutPlanExtractor:
                 
                 if exercises:
                     exercises_by_day[formatted_key] = {
-                        'name': day_title.strip() or formatted_key,
+                        'name': day_title,
                         'exercises': exercises
                     }
-                    
                     logger.info(f"      ✅ {len(exercises)} exercícios extraídos")
         
         return exercises_by_day
     
     @staticmethod
     def _extract_exercises_from_text(text: str) -> List[Dict]:
-        """
-        Extrai exercícios de um bloco de texto
-        
-        Formatos suportados:
-        - Supino Reto: 3 séries de 8-12 repetições
-        - * Supino Reto (barra): 3 séries de 8-12 reps
-        - Supino Reto - 3x8-12
-        """
         exercises = []
         lines = text.split('\n')
         
         for line in lines:
             line = line.strip()
             
-            if not line or line.startswith('*   Aquecimento') or line.startswith('*   Alongamento'):
+            # 🔥 Ignora linhas irrelevantes
+            if not line or len(line) < 5:
+                continue
+            if line.startswith('*   Aquecimento') or line.startswith('*   Alongamento'):
                 continue
             
-            # 🔥 Padrões de exercício (múltiplos formatos)
-            patterns = [
-                # Formato: Supino Reto: 3 séries de 8-12 repetições
+            # ✅ PADRÕES FLEXÍVEIS (8 formatos!)
+            flexible_patterns = [
+                # 🔥 NOVO Padrão 8: Formato "*   Nome do Exercício" (SEM séries/reps)
+                # Detecta: *   Supino Reto com Barra/Halteres
+                r'^\*\s+([A-ZÇÁÀÂÃÉÊÍÓÔÕÚ][a-zçáàâãéêíóôõú]+(?:\s+[A-ZÇÁÀÂÃÉÊÍÓÔÕÚ]?[a-zçáàâãéêíóôõú]+)*(?:\s+com\s+[^*\n]+)?)',
+                
+                # Padrão 1: Original
                 r'^[*\-•]?\s*([^:()]+?)(?:\([^)]*\))?:\s*(\d+)\s*séries?\s*de\s*([\d\-]+)\s*(?:repetições?|reps?)',
                 
-                # Formato: Supino Reto - 3x8-12
+                # Padrão 2: Original
                 r'^[*\-•]?\s*([^:()]+?)(?:\([^)]*\))?\s*-\s*(\d+)\s*x\s*([\d\-]+)',
                 
-                # Formato: Supino Reto (barra ou halteres): 3 séries de 8-12 reps
+                # Padrão 3: Original
                 r'^[*\-•]?\s*([^:]+?):\s*(\d+)\s*séries?\s*de\s*([\d\-]+)\s*reps?',
+                
+                # Padrão 4: Com asteriscos
+                r'^\*\s+\*\*([^*]+)\*\*[^:]*:\s*(\d+)\s*séries?\s*de\s*([\d\-]+)',
+                
+                # Padrão 5: Com numeração
+                r'^\d+\.\s+([^:\-]+)[\-:]\s*(\d+)\s*[xX]\s*([\d\-]+)',
+                
+                # Padrão 6: Texto livre
+                r'([A-Z][a-zçãõá]+(?:\s+[A-Z]?[a-zçãõá]+)*)[^\d]*(\d+)\s*séries?[^\d]*([\d\-]+)',
+                
+                # Padrão 7: Parênteses complexos
+                r'^\*?\s*([^:(]+?)(?:\([^)]+\))?:\s*(\d+)\s*séries?\s*de\s*([\d\-]+)',
             ]
             
-            for pattern in patterns:
+            for pattern in flexible_patterns:
                 match = re.search(pattern, line, re.IGNORECASE)
                 
                 if match:
                     exercise_name = match.group(1).strip()
                     
-                    # Limpar nome (remover texto entre parênteses)
-                    exercise_name = re.sub(r'\([^)]*\)', '', exercise_name).strip()
+                    # 🔥 Limpar markdown do nome
+                    exercise_name = re.sub(r'\*+', '', exercise_name)
+                    exercise_name = re.sub(r'\([^)]*\)', '', exercise_name)
+                    exercise_name = exercise_name.strip()
                     
-                    sets = int(match.group(2))
-                    reps = match.group(3).strip()
+                    # 🔥 NOVO: Se padrão 8 (sem séries/reps), usar valores padrão
+                    if len(match.groups()) == 1:
+                        sets = 3
+                        reps = "8-12"
+                    else:
+                        sets = int(match.group(2))
+                        reps = match.group(3).strip()
                     
                     exercises.append({
                         'name': exercise_name,
@@ -600,7 +614,7 @@ class WorkoutPlanExtractor:
                     })
                     
                     logger.info(f"         • {exercise_name}: {sets}x{reps}")
-                    break
+                    break  # Parar no primeiro match
         
         return exercises
     
@@ -1669,7 +1683,18 @@ MENSAGEM ATUAL DO USUÁRIO:
 
 Responda de forma natural, personalizada e útil. Máximo 200 palavras."""
             
-            response = self.ai_service._make_gemini_request(full_prompt)
+            
+            safety_settings = {
+                HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+            }
+            
+            response = self.ai_service._make_gemini_request(
+                full_prompt,
+                safety_settings=safety_settings  # ← ADICIONAR PARÂMETRO
+            )
             
             if response:
                 processed_response = self._process_ai_response(response, intent_analysis)
@@ -1858,6 +1883,19 @@ Você é Alex, um personal trainer virtual. Responda apenas com a mensagem, sem 
                 
         except Exception as e:
             logger.error(f"Error generating Gemini welcome message: {e}")
+
+        safety_settings = {
+            HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+            HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+            HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+            HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+        }
+        
+        start_time = time.time()
+        response = self.ai_service._make_gemini_request(
+            prompt,
+            safety_settings=safety_settings  # ← ADICIONAR PARÂMETRO
+        )
         
         return None
     

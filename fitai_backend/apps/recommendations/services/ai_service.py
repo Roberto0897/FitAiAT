@@ -9,6 +9,7 @@ from typing import Dict, List, Optional, Tuple
 from apps.users.models import UserProfile
 from apps.exercises.models import Exercise
 from apps.workouts.models import Workout, WorkoutSession, ExerciseLog
+from google.generativeai.types import HarmCategory, HarmBlockThreshold 
 
 
 logger = logging.getLogger(__name__)
@@ -36,13 +37,17 @@ class AIService:
             # Configurar Gemini
             genai.configure(api_key=settings.GEMINI_API_KEY)
             
+            safety_settings = {
+                HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+            }
+
             # Inicializar modelo
             self.model = genai.GenerativeModel(
                 model_name=settings.GEMINI_MODEL,
-                generation_config={
-                    'temperature': settings.GEMINI_TEMPERATURE,
-                    'max_output_tokens': settings.GEMINI_MAX_TOKENS,
-                }
+                safety_settings=safety_settings 
             )
             
             # Teste rápido de conectividade
@@ -93,7 +98,9 @@ class AIService:
         rate_limit_data["count"] += 1
         cache.set(self.rate_limit_cache_key, rate_limit_data, 60)  # Cache por 1 minuto
     
-    def _make_gemini_request(self, prompt: str) -> Optional[str]:
+    
+
+    def _make_gemini_request(self, prompt: str, safety_settings=None) -> Optional[str]:
         """Faz requisição segura para Gemini"""
         if not self.is_available or not self.model:
             return None
@@ -102,13 +109,39 @@ class AIService:
         if not self._check_rate_limit():
             logger.warning("Skipping Gemini request due to rate limiting")
             return None
+        
+        # 🔥 SAFETY SETTINGS PADRÃO se não fornecido
+        if safety_settings is None:
+            safety_settings = {
+                HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_NONE,
+                HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+            }
             
         try:
-            # Fazer requisição
-            response = self.model.generate_content(prompt)
+            # 🔥 Fazer requisição COM safety_settings
+            response = self.model.generate_content(
+                prompt,
+                safety_settings=safety_settings  # ← ADICIONAR AQUI
+            )
             
             # Atualizar contador de rate limit
             self._update_rate_limit_counter()
+            
+            # 🔥 Verificar se teve bloqueio
+            if not response.candidates or (response.candidates and response.candidates[0].finish_reason.name != "STOP"):
+                logger.error("❌ Resposta bloqueada ou incompleta")
+                
+                # Tenta logar o feedback de segurança do prompt, se existir
+                if hasattr(response, 'prompt_feedback'):
+                     logger.error(f"🔒 Feedback de Segurança do Prompt: {response.prompt_feedback}")
+                     
+                # Tenta logar o motivo exato do término da geração
+                if response.candidates:
+                     logger.error(f"🏁 Finish Reason: {response.candidates[0].finish_reason.name}")
+                
+                return None
             
             # Extrair resposta
             content = response.text

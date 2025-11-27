@@ -57,7 +57,7 @@ urlpatterns = [
 
 
      # ============================================================
-    # 🆕 RECOMENDAÇÃO INTELIGENTE (NOVA)
+    #  RECOMENDAÇÃO INTELIGENTE (NOVA)
     # ============================================================
     path('workouts/smart-recommendation/', views.smart_recommendation_view, name='smart-recommendation'),
 

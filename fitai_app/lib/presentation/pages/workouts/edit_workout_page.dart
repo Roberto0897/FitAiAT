@@ -629,7 +629,7 @@ class _EditWorkoutPageState extends State<EditWorkoutPage> {
 }
 
 // ============================================================
-// 📦 MODEL: WorkoutExerciseModel
+//  MODEL: WorkoutExerciseModel
 // ============================================================
 class WorkoutExerciseModel {
   int? id;
@@ -676,7 +676,7 @@ class WorkoutExerciseModel {
 }
 
 // ============================================================
-// 📦 MODEL: AvailableExerciseModel
+//  MODEL: AvailableExerciseModel
 // ============================================================
 class AvailableExerciseModel {
   final int id;
@@ -705,7 +705,7 @@ class AvailableExerciseModel {
 }
 
 // ============================================================
-// 🎴 CARD: Exercício Editável
+//  CARD: Exercício Editável
 // ============================================================
 class _ExerciseEditCard extends StatefulWidget {
   final WorkoutExerciseModel exercise;
@@ -909,7 +909,7 @@ class _ExerciseEditCardState extends State<_ExerciseEditCard> {
 }
 
 // ============================================================
-// 🎴 BOTTOM SHEET: Adicionar Exercícios
+//  BOTTOM SHEET: Adicionar Exercícios
 // ============================================================
 class _AddExercisesBottomSheet extends StatefulWidget {
   final Set<int> alreadyAddedIds;

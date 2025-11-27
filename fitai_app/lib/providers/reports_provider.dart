@@ -1,5 +1,5 @@
-// Provider CORRIGIDO para gerenciar dados de relatórios
-// Localização: lib/providers/reports_provider.dart
+// Provider  para gerenciar dados de relatórios
+
 
 import 'package:flutter/material.dart';
 import '../models/workout_history_model.dart';
@@ -271,7 +271,7 @@ class ReportsProvider extends ChangeNotifier {
       }
     }
 
-    // ⭐ NOVO: Calcular exercício favorito
+    //  Calcular exercício favorito
     // Se o modelo tem exercícios, contar; senão usar nome do treino
     final exerciseFrequency = <String, int>{};
     

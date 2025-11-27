@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-// Importa suas cores reais (AppColors)
+// Importa cores reais (AppColors)
 import '../../../core/theme/app_theme.dart'; 
 
 class RestPage extends StatefulWidget {
@@ -183,7 +183,7 @@ class _RestPageState extends State<RestPage> {
 
   @override
 Widget build(BuildContext context) {
-  // Use um Scaffold com fundo transparente para que o PageRouteBuilder
+  // Scaffold com fundo transparente para o PageRouteBuilder
   // possa exibir a tela anterior.
   return Scaffold(
     backgroundColor: Colors.transparent, 

@@ -414,9 +414,9 @@ def recommendation_history(request):
 @rate_limit_user(max_requests_per_hour=10)
 def generate_ai_workout(request):
     """
-    🔥 VERSÃO CORRIGIDA: Gera treino SEMANAL igual ao chatbot
+     Gera treino SEMANAL 
     
-    Agora usa a MESMA lógica de generate_workout_from_conversation
+    usa a MESMA lógica de generate_workout_from_conversation
     para garantir consistência.
     """
     start_time = time.time()
@@ -436,7 +436,7 @@ def generate_ai_workout(request):
         focus = request.data.get('focus', 'full_body')
         difficulty = request.data.get('difficulty')
         custom_request = request.data.get('custom_request', '')
-        days_per_week = request.data.get('days_per_week', 5)  # ✅ NOVO
+        days_per_week = request.data.get('days_per_week', 5)  
         
         # Validações
         if not (10 <= duration <= 120):
@@ -465,7 +465,7 @@ def generate_ai_workout(request):
         print(f'   Foco: {focus}, Dificuldade: {difficulty}, Dias: {days_per_week}')
         
         # ============================================================
-        # 🔥 USAR MESMA LÓGICA DO CHATBOT
+        #  USAR MESMA LÓGICA DO CHATBOT
         # ============================================================
         from apps.exercises.models import Exercise
         from apps.workouts.models import Workout, WorkoutExercise
@@ -518,13 +518,13 @@ def generate_ai_workout(request):
             name=workout_name,
             description=f"Treino semanal ({days_per_week} dias, {duration}min/dia). Foco: {focus}. Gerado via IA.",
             difficulty_level=difficulty,
-            estimated_duration=days_per_week * duration,  # ✅ Total semanal
+            estimated_duration=days_per_week * duration,  #  Total semanal
             target_muscle_groups=', '.join([weekly_structure[d]['description'] for d in days_to_generate if weekly_structure[d]['exercises_count'] > 0]),
             equipment_needed='Variado',
             calories_estimate=300 * days_per_week,
             workout_type=focus if focus != 'full_body' else 'strength',
             
-            # ✅ Privado
+            #  Privado
             is_personalized=True,
             created_by_user=request.user,
             is_recommended=True,
@@ -861,10 +861,9 @@ def generate_motivational_message(request):
 @rate_limit_user(max_requests_per_hour=5)
 def generate_workout_from_conversation(request):
     """
-    🤖 Gera plano de treino SEMANAL baseado na conversa do chatbot
+     Gera plano de treino SEMANAL baseado na conversa do chatbot
     
-    ✅ CORRIGIDO:
-    - Validação adequada de entrada
+     - Validação adequada de entrada
     - Estrutura dinâmica baseada no focus
     - Lógica de prioridades clara
     - Geração adaptativa de dias
@@ -875,7 +874,7 @@ def generate_workout_from_conversation(request):
         from django.utils import timezone
         
         # ============================================================
-        # 1️⃣ BUSCAR PERFIL
+        # 1 BUSCAR PERFIL
         # ============================================================
         try:
             profile = UserProfile.objects.get(user=request.user)
@@ -886,7 +885,7 @@ def generate_workout_from_conversation(request):
             }, status=status.HTTP_404_NOT_FOUND)
         
         # ============================================================
-        # 2️⃣ EXTRAIR E VALIDAR DADOS
+        # 2 EXTRAIR E VALIDAR DADOS
         # ============================================================
         plan_info = request.data.get('plan_info')
         user_preferences = request.data.get('user_preferences', {})
@@ -907,7 +906,7 @@ def generate_workout_from_conversation(request):
         profile_difficulty = difficulty_mapping.get(profile.activity_level, 'beginner')
         
         # ============================================================
-        # 3️⃣ DEFINIR PARÂMETROS COM PRIORIDADE CLARA
+        # 3 DEFINIR PARÂMETROS COM PRIORIDADE CLARA
         # ============================================================
         # Prioridade: plan_info > user_preferences > profile defaults
         days_per_week = (
@@ -943,9 +942,9 @@ def generate_workout_from_conversation(request):
         print(f'   Dias: {days_per_week}, Foco: {focus}, Nível: {difficulty}')
         
         # ============================================================
-        # 4️⃣ BUSCAR EXERCÍCIOS (MELHORADO)
+        # 4 BUSCAR EXERCÍCIOS (MELHORADO)
         # ============================================================
-        exercises_query = Exercise.objects.filter(is_active=True)
+        exercises_query = Exercise.objects.all()
         
         # Mapeamento inteligente de foco
         focus_to_muscles = {
@@ -980,7 +979,7 @@ def generate_workout_from_conversation(request):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         # ============================================================
-        # 5️⃣ ESTRUTURA DINÂMICA BASEADA NO FOCUS
+        # 5 ESTRUTURA DINÂMICA BASEADA NO FOCUS
         # ============================================================
         
         # Gerar estrutura adaptativa
@@ -991,7 +990,7 @@ def generate_workout_from_conversation(request):
         )
         
         # ============================================================
-        # 6️⃣ CRIAR WORKOUT PRIVADO
+        # 6 CRIAR WORKOUT PRIVADO
         # ============================================================
         workout_name = f"Treino {focus.title()} IA - {timezone.now().strftime('%d/%m/%Y')}"
         
@@ -1014,7 +1013,7 @@ def generate_workout_from_conversation(request):
         print(f'✅ Workout criado: {workout.name} (ID: {workout.id})')
         
         # ============================================================
-        # 7️⃣ ADICIONAR EXERCÍCIOS
+        # 7 ADICIONAR EXERCÍCIOS
         # ============================================================
         workout_plan = []
         order_counter = 1
@@ -1066,7 +1065,7 @@ def generate_workout_from_conversation(request):
                 order_counter += 1
         
         # ============================================================
-        # 8️⃣ RESPOSTA
+        # 8 RESPOSTA
         # ============================================================
         response_data = {
             'success': True,
@@ -1498,7 +1497,7 @@ def get_daily_ai_recommendation(request):
     """
     GET/POST /api/v1/recommendations/ai/daily-recommendation/
     
-    🔥 NOVO: Retorna apenas MENSAGEM MOTIVACIONAL
+    Retorna apenas MENSAGEM MOTIVACIONAL
     Sincronizada com a recomendação do smart-recommendation
     """
     try:
@@ -1517,7 +1516,7 @@ def get_daily_ai_recommendation(request):
                 'cached': True
             })
         
-        # ✅ PEGAR A RECOMENDAÇÃO PRINCIPAL (do smart-recommendation)
+        #  PEGAR A RECOMENDAÇÃO PRINCIPAL (do smart-recommendation)
         smart_cache_key = f"daily_rec_{user.id}_{datetime.now().date()}"
         main_recommendation = cache.get(smart_cache_key)
         

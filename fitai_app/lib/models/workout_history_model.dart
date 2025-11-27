@@ -63,7 +63,6 @@ class WorkoutHistoryModel {
     // Se calorias é 0, calcular estimativa baseado na duração
     if (calories == 0 && duration > 0) {
       // Estimativa: ~6-8 kcal por minuto (varia por intensidade)
-      // Você pode ajustar esse valor conforme necessário
       calories = (duration * 6).toInt();
       print('   ⚠️ Calorias calculadas (estimativa): $calories kcal');
     } else {

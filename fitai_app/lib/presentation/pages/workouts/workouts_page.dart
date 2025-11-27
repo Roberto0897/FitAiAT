@@ -105,8 +105,8 @@ class _WorkoutsPageState extends State<WorkoutsPage> with TickerProviderStateMix
             difficulty: _mapDifficulty(exercise['difficulty_level']),
             equipment: exercise['equipment_needed'] ?? 'Não especificado',
             series: '3',
-            videoUrl: exercise['video_url'],  // ✅ ADICIONADO
-            imageUrl: exercise['image_url'],  // ✅ ADICIONADO
+            videoUrl: exercise['video_url'],  
+            imageUrl: exercise['image_url'],  
           );
         }).toList();
         _isLoadingExercises = false;
@@ -417,7 +417,7 @@ class _WorkoutsPageState extends State<WorkoutsPage> with TickerProviderStateMix
 
   Widget _buildRecommendedWorkouts() {
   return FutureBuilder<Map<String, dynamic>>(
-    future: ApiService.getRecommendedWorkouts(), // ✅ CORRETO: Chama API
+    future: ApiService.getRecommendedWorkouts(), //  Chama API
     builder: (context, snapshot) {
       // Loading
       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -451,14 +451,14 @@ class _WorkoutsPageState extends State<WorkoutsPage> with TickerProviderStateMix
         );
       }
 
-      // ✅ Extrair dados da resposta
+      // Extrair dados da resposta
       final data = snapshot.data;
       
       if (data == null) {
         return _buildEmptyRecommended('Nenhuma recomendação disponível');
       }
 
-      // ✅ CRÍTICO: Usar a chave correta do backend
+      //  CRÍTICO: Usar a chave correta do backend
       final recommendedList = data['recommended_workouts'] as List? ?? [];
       
       print('✅ ${recommendedList.length} treinos recomendados recebidos');
@@ -474,7 +474,7 @@ class _WorkoutsPageState extends State<WorkoutsPage> with TickerProviderStateMix
           difficulty: _mapDifficulty(workout['difficulty_level']),
           category: _mapCategory(workout['workout_type']),
           calories: workout['calories_estimate'] ?? 0,
-          isRecommended: true, // ✅ Sempre true nesta aba
+          isRecommended: true, //  Sempre true nesta aba
         );
       }).toList();
 
@@ -486,7 +486,7 @@ class _WorkoutsPageState extends State<WorkoutsPage> with TickerProviderStateMix
         );
       }
 
-      // ✅ Sucesso - Mostrar treinos
+      //  Sucesso - Mostrar treinos
       return Column(
         children: [
           // Banner informativo
@@ -578,7 +578,7 @@ class _WorkoutsPageState extends State<WorkoutsPage> with TickerProviderStateMix
 }
 
 // ============================================================
-// 🆕 WIDGET AUXILIAR: Estado vazio para recomendados
+//  WIDGET AUXILIAR: Estado vazio para recomendados
 // ============================================================
 
 Widget _buildEmptyRecommended(String message) {
@@ -891,7 +891,7 @@ Widget _buildEmptyRecommended(String message) {
       setState(() {});
     }
   } else if (choice == 'advanced') {
-    // ✅ NOVA: Edição avançada
+    //  Edição avançada
     final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
@@ -909,7 +909,7 @@ Widget _buildEmptyRecommended(String message) {
 }
 
 // ============================================================
-// 🔧 MÉTODO CORRIGIDO: _deleteWorkout (SEM CONST)
+//  MÉTODO : _deleteWorkout (SEM CONST)
 // ============================================================
 Future<void> _deleteWorkout(WorkoutModel workout) async {
   final confirmed = await showDialog<bool>(
@@ -968,7 +968,7 @@ Future<void> _deleteWorkout(WorkoutModel workout) async {
     
     if (!mounted) return;
     
-    // ✅ Sucesso
+    //  Sucesso
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -998,7 +998,7 @@ Future<void> _deleteWorkout(WorkoutModel workout) async {
     print('   Message: ${e.message}');
 
     // ============================================================
-    // 🔥 VERIFICAR SE É ERRO DE SESSÃO ATIVA
+    //  VERIFICAR SE É ERRO DE SESSÃO ATIVA
     // ============================================================
     
     bool isSessionError = false;
@@ -1053,7 +1053,7 @@ Future<void> _deleteWorkout(WorkoutModel workout) async {
 }
 
 // ============================================================
-// 🔥 Dialog para erro de sessão ativa (COM CANCELAMENTO)
+//  Dialog para erro de sessão ativa (COM CANCELAMENTO)
 // ============================================================
 Future<void> _showSessionActiveDialog(WorkoutModel workout, int activeSessionsCount) async {
   final action = await showDialog<String>(
@@ -1184,7 +1184,7 @@ Future<void> _showSessionActiveDialog(WorkoutModel workout, int activeSessionsCo
 }
 
 // ============================================================
-// 🔥 Cancelar sessão ativa diretamente
+//  Cancelar sessão ativa diretamente
 // ============================================================
 Future<void> _cancelActiveSessionDirectly() async {
   try {
@@ -1319,7 +1319,7 @@ Future<void> _cancelActiveSessionDirectly() async {
 }
 
 // ============================================================
-// 🔥 Dialog genérico para erro de delete
+//  Dialog genérico para erro de delete
 // ============================================================
 Future<void> _showDeleteErrorDialog(WorkoutModel workout, String errorMessage) async {
   await showDialog(
@@ -1370,7 +1370,7 @@ Future<void> _showDeleteErrorDialog(WorkoutModel workout, String errorMessage) a
   );
 }
 // ============================================================
-// 🆕 MÉTODO: Lidar com sessão ativa antes de deletar
+//  MÉTODO: Lidar com sessão ativa antes de deletar
 // ============================================================
 Future<void> _handleActiveSessionForDeletion(WorkoutModel workout) async {
   try {
@@ -1559,7 +1559,7 @@ Future<void> _handleActiveSessionForDeletion(WorkoutModel workout) async {
 }
 
 // ============================================================
-// 🆕 MÉTODO: Cancelar sessão e tentar deletar novamente
+//  MÉTODO: Cancelar sessão e tentar deletar novamente
 // ============================================================
 Future<void> _cancelSessionAndRetryDelete(int sessionId, WorkoutModel workout) async {
   try {
@@ -1643,19 +1643,19 @@ Future<void> _cancelSessionAndRetryDelete(int sessionId, WorkoutModel workout) a
 }
 
 // ============================================================
-// 🆕 MÉTODO AUXILIAR: Navegar para sessões ativas
+//  MÉTODO AUXILIAR: Navegar para sessões ativas
 // ============================================================
 void _goToActiveSessions() {
-  // Implementar navegação para tela de progresso/sessões
+  // navegação para tela de progresso/sessões
   // Exemplo:
   AppRouter.goToProgress();
   
-  // Ou se você quiser cancelar a sessão diretamente:
+  // cancelar a sessão diretamente:
   // _showCancelActiveSessionDialog();
 }
 
 // ============================================================
-// 🆕 MÉTODO OPCIONAL: Cancelar sessão ativa diretamente
+//  MÉTODO OPCIONAL: Cancelar sessão ativa diretamente
 // ============================================================
 Future<void> _showCancelActiveSessionDialog() async {
   try {
@@ -1720,7 +1720,7 @@ Future<void> _showCancelActiveSessionDialog() async {
   }
 }
 
-  // ✅ ABA EXERCÍCIOS CORRIGIDA - SÓ VISUALIZAÇÃO
+  //  SÓ VISUALIZAÇÃO
   Widget _buildExercisesTab() {
     if (_isLoadingExercises) {
       return const Center(
@@ -1834,7 +1834,7 @@ Future<void> _showCancelActiveSessionDialog() async {
     );
   }
 
-  // ✅ MÉTODO CORRIGIDO - Abre exercício para visualização
+  // Abre exercício para visualização
   void _openExerciseDetail(ExerciseModel exercise) {
     print('🎯 Abrindo exercício em PREVIEW MODE');
     print('   Exercise: ${exercise.name}');
@@ -1847,7 +1847,7 @@ Future<void> _showCancelActiveSessionDialog() async {
       allExercises: [exercise],
       initialWorkoutSeconds: 0,
       isFullWorkout: false,
-      isPreviewMode: true, // ✅ CRÍTICO: Ativa modo visualização
+      isPreviewMode: true, // Ativa modo visualização
     );
   }
 }
@@ -1984,9 +1984,9 @@ class WorkoutCard extends StatelessWidget {
 }
 
 // ============================================================
-// 🔥 OPÇÃO 1: DISMISSIBLE (Swipe to Delete)
+//  OPÇÃO 1: DISMISSIBLE (Swipe to Delete)
 // ============================================================
-// Substitua o widget _MyWorkoutCard por este:
+
 
 class _MyWorkoutCard extends StatelessWidget {
   final WorkoutModel workout;
@@ -2007,7 +2007,7 @@ class _MyWorkoutCard extends StatelessWidget {
       key: Key('workout_${workout.id}'),
       direction: DismissDirection.endToStart, // ← Só arrasta da direita pra esquerda
       confirmDismiss: (direction) async {
-        // ✅ Mostra confirmação ANTES de deletar
+        //  Mostra confirmação ANTES de deletar
         return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
@@ -2035,7 +2035,7 @@ class _MyWorkoutCard extends StatelessWidget {
         );
       },
       onDismissed: (direction) {
-        // ✅ Chama o callback de deletar
+        //  Chama o callback de deletar
         onDelete();
       },
       background: Container(
@@ -2112,7 +2112,7 @@ class _MyWorkoutCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  // ✅ MANTÉM O MENU DE 3 PONTOS TAMBÉM
+                  //  MANTÉM O MENU DE 3 PONTOS 
                   PopupMenuButton<String>(
                     icon: const Icon(Icons.more_vert, color: AppColors.textSecondary),
                     color: AppColors.surface,
@@ -2206,7 +2206,7 @@ class _MyWorkoutCard extends StatelessWidget {
   }
 }
 
-// ✅ WIDGET CORRIGIDO - Card de exercício sem botão de adicionar
+// Card de exercício sem botão de adicionar
 class _ExerciseListCard extends StatelessWidget {
   final ExerciseModel exercise;
   final VoidCallback onTap;

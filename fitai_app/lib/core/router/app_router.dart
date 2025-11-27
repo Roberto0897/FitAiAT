@@ -42,7 +42,7 @@ class AppRouter {
     debugLogDiagnostics: true, // Ative para debug
     initialLocation: AppRoutes.login,
     
-    // 🔥 REDIRECT CORRIGIDO - Previne loops infinitos
+    // Previne loops infinitos
     redirect: (context, state) async {
       // Prevenir múltiplos redirects simultâneos
       if (_isRedirecting) {
@@ -88,7 +88,7 @@ class AppRouter {
       }
     },
     
-    // 🔥 AUTH NOTIFIER MELHORADO - Com debounce
+    // AUTH NOTIFIER MELHORADO
     refreshListenable: AuthNotifierImproved(),
 
     routes: [
@@ -148,12 +148,12 @@ class AppRouter {
           exercise: params['exercise'] as ExerciseModel,
           totalExercises: params['totalExercises'] as int,
           currentExerciseIndex: params['currentExerciseIndex'] as int,
-          allExercises: params['allExercises'] as List<ExerciseModel>, // ADICIONE
+          allExercises: params['allExercises'] as List<ExerciseModel>, 
           initialWorkoutSeconds: (params['initialWorkoutSeconds'] as int?) ?? 0,
-          isFullWorkout: (params['isFullWorkout'] as bool?) ?? false,  // ✅ ADICIONADO
-          sessionId: params['sessionId'] as int?,                       // ✅ ADICIONADO
-          workoutId: params['workoutId'] as int?,                       // ✅ ADICIONADO
-          isPreviewMode: (params['isPreviewMode'] as bool?) ?? false,   // ✅ ADICIONADO
+          isFullWorkout: (params['isFullWorkout'] as bool?) ?? false,  
+          sessionId: params['sessionId'] as int?,                     
+          workoutId: params['workoutId'] as int?,                     
+          isPreviewMode: (params['isPreviewMode'] as bool?) ?? false,  
         );
       },
     ),
@@ -173,7 +173,7 @@ class AppRouter {
         builder: (context, state) {
           debugPrint('📱 ROUTER: Construindo ChatBotPage');
           
-          // 🔥 EXTRAIR PARÂMETROS EXTRAS
+          // EXTRAIR PARÂMETROS EXTRAS
           final extra = state.extra as Map<String, dynamic>?;
           
           return ChatBotPage(
@@ -193,7 +193,7 @@ class AppRouter {
         },
       ),
 
-    ], // adicione goRoute antes disso
+    ], // adicionar os futuros goRoute antes disso
     
     errorBuilder: (context, state) {
       debugPrint('❌ ROUTER: Erro de rota: ${state.error}');
@@ -203,7 +203,7 @@ class AppRouter {
     
   );
 
-  // 🔥 MÉTODOS DE NAVEGAÇÃO CORRIGIDOS
+  // MÉTODOS DE NAVEGAÇÃO 
   
   static void goToLogin() {
     try {
@@ -255,7 +255,7 @@ class AppRouter {
     }
   }
 
-  // 🔥 LOGOUT CORRIGIDO - Agora faz logout real
+  //  LOGOUT 
   static Future<void> logout() async {
   try {
     debugPrint('🚀 ROUTER: Iniciando logout...');
@@ -324,10 +324,10 @@ class AppRouter {
     required int currentExerciseIndex,
     required List<ExerciseModel> allExercises,
     int initialWorkoutSeconds = 0,
-    bool isFullWorkout = false, // NOVO PARÂMETRO
-    int? sessionId,        //  NOVO
+    bool isFullWorkout = false, 
+    int? sessionId,        
     int? workoutId, 
-    bool isPreviewMode = false, // 🆕 NOVO
+    bool isPreviewMode = false, 
   }) {
     try {
       _router.push(
@@ -338,8 +338,8 @@ class AppRouter {
           'currentExerciseIndex': currentExerciseIndex,
           'allExercises': allExercises,
           'initialWorkoutSeconds': initialWorkoutSeconds,
-          'isFullWorkout': isFullWorkout, // NOVO
-          'sessionId': sessionId,        //  NOVO
+          'isFullWorkout': isFullWorkout,
+          'sessionId': sessionId,       
           'workoutId': workoutId,
           'isPreviewMode': isPreviewMode,
         },
@@ -388,7 +388,7 @@ static void goToReports() {
   }
 }
 
-// 🔥 AUTH NOTIFIER MELHORADO - Com debounce para evitar loops
+// AUTH NOTIFIER - evitar loops
 class AuthNotifierImproved extends ChangeNotifier {
   Timer? _debounceTimer;
   User? _lastUser;
@@ -417,7 +417,7 @@ class AuthNotifierImproved extends ChangeNotifier {
   }
 }
 
-// 🔥 PÁGINA DE ERRO MELHORADA
+//  PÁGINA DE ERRO 
 class ErrorPage extends StatelessWidget {
   const ErrorPage({super.key});
 

@@ -1,46 +1,30 @@
 # 🏋️‍♂️ FitAI - Assistente Fitness Inteligente
 
-> **Projeto de TCC:** Sistema de treinos personalizado com Inteligência Artificial  
-> **Foco:** Algoritmos de recomendação e chatbot inteligente para fitness
+> **Trabalho de Conclusão de Curso:** Sistema de treinos personalizado com Inteligência Artificial  
+> **Foco:** Arquitetura híbrida Django-Flutter com IA Generativa para personalização de treinos
 
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev/)
 [![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)](https://www.djangoproject.com/)
-[![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)](https://openai.com/)
+[![Google Gemini](https://img.shields.io/badge/Google_Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
+[![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
 
 ---
 
 ## 🎯 Objetivo do Projeto
 
-O **FitAI** é um assistente fitness inteligente que utiliza **algoritmos de Machine Learning** e **processamento de linguagem natural** para personalizar treinos e fornecer orientação fitness através de um chatbot especializado.
+O **FitAI** é uma plataforma de treinos personalizados que utiliza **Inteligência Artificial Generativa** para oferecer orientação fitness profissional através de recomendações contextualizadas e um chatbot especializado, democratizando o acesso a serviços tradicionalmente restritos por barreiras econômicas.
 
 ### Problema Resolvido
 - **Falta de personalização** em apps de fitness convencionais
 - **Dificuldade de aderência** a programas de exercícios
 - **Ausência de orientação inteligente** em tempo real
 
-### Solução Proposta
-Sistema híbrido que combina:
-- **Algoritmos de recomendação** baseados no perfil do usuário
-- **Chatbot com IA** para orientação personalizada
-- **Interface intuitiva** para acompanhamento de progresso
+### Diferenciais Técnicos
 
----
-
-## 🚀 Status Atual
-
-### ✅ Implementado
-- **Backend Django completo** (55+ APIs REST)
-- **Sistema de autenticação** com token-based security
-- **Chatbot com OpenAI integration** + fallbacks inteligentes
-- **Frontend Flutter** com dashboard e sistema de treinos
-- **Design system** moderno e responsivo
-- **Arquitetura Clean** com componentes reutilizáveis
-
-### 🚧 Em Desenvolvimento
-- Algoritmos de recomendação avançados
-- Métricas de performance da IA
-- Integração completa backend-frontend
-- Analytics de uso e eficácia
+ **Zero-Shot Learning**: Personalização imediata sem dependência de dados históricos  
+ **Arquitetura Híbrida**: Sistema de fallback garante continuidade mesmo com falhas externas  
+ **Privacy by Design**: Segregação de identidade (Firebase) e dados sensíveis (Django)  
+ **Chatbot Contextual**: Assistente inteligente e gerador de treinos 
 
 ---
 
@@ -76,8 +60,7 @@ FitAI/
 ### Backend
 - **Django 4.2.7** + Django REST Framework
 - **PostgreSQL** (produção) / SQLite (desenvolvimento)
-- **OpenAI GPT** para processamento de linguagem natural
-- **Redis** para cache e rate limiting
+- **Google Gemini API** IA Generativa para treinos
 - **Token Authentication** para segurança
 
 ### Frontend
@@ -86,39 +69,50 @@ FitAI/
 - **BLoC** para gerenciamento de estado
 - **Clean Architecture** para escalabilidade
 - **Dio/Retrofit** para comunicação com APIs
+- **FlutterSecureStorage**  Armazenamento criptografado
 
-### IA/ML
-- **OpenAI GPT-4** para chatbot inteligente
-- **Algoritmos de Collaborative Filtering** para recomendações
-- **Content-Based Filtering** para personalização
-- **Hybrid Recommendation System** combinando múltiplas abordagens
+### Infraestrutura e Serviços
+- **Firebase Authentication**: Gerenciamento de identidades
+- **Git/GitHub**: Controle de versão
+- **VS Code**: Ambiente de desenvolvimento
+- **Figma**: Prototipagem de interfaces
 
 ---
 
 ## 📱 Funcionalidades
 
-### Dashboard Inteligente
-- Métricas personalizadas (peso, IMC, progresso)
-- Recomendações de treinos baseadas em IA
-- Ações rápidas para iniciar treinos ou chat
+### 🔐 Autenticação e Perfil
+- [x] Cadastro de usuário com Firebase
+- [x] Login com email/senha 
+- [x] Onboarding com wizard multi-etapas
+- [x] Perfil fitness personalizado (objetivos, nível, restrições)
+- [x] Sincronização automática Firebase ↔ Django
 
-### Sistema de Treinos
-- Catálogo completo com filtros inteligentes
-- Busca em tempo real por exercícios
-- Detalhes completos com instruções e dicas
-- Timer funcional para execução de treinos
+### 🏋️ Sistema de Treinos
+- [x] Catálogo de exercícios com filtros (grupo muscular, equipamento)
+- [x] Geração de treinos personalizados via IA
+- [x] Visualização detalhada com séries, repetições, carga
+- [x] Timer de descanso funcional
+- [x] Registro de sessões executadas
 
-### Chatbot Fitness
-- Conversas naturais sobre fitness e nutrição
-- Contextualização baseada no perfil do usuário
-- Recomendações personalizadas em tempo real
-- Sistema de feedback para melhoria contínua
+### 🤖 Recomendações Inteligentes
+- [x] Análise de histórico e padrões de treino
+- [x] Identificação de grupos musculares negligenciados
+- [x] Recomendações diárias contextualizadas
+- [x] Sistema de score de confiança
 
-### Analytics (Diferencial Acadêmico)
-- Métricas de performance dos algoritmos de IA
-- Gráficos de acurácia das recomendações
-- Análise comparativa de diferentes métodos de ML
-- Dashboard de eficácia do sistema
+### 💬 Chatbot Fitness
+- [x] Assistente conversacional com Google Gemini
+- [x] Contextualização baseada no perfil do usuário
+- [x] Entrevista estruturada para geração de treinos
+- [x] Respostas em português brasileiro
+- [x] Feedback educativo sobre exercícios
+
+### 📊 Dashboard e Métricas
+- [x] Visão consolidada do progresso
+- [x] Total de treinos realizados
+- [x] Card de recomendação inteligente
+- [x] Acesso rápido a funcionalidades principais
 
 ---
 
@@ -145,10 +139,6 @@ venv\Scripts\activate     # Windows
 # Instalar dependências
 pip install -r requirements.txt
 
-# Configurar banco de dados
-cd fitai_backend
-python manage.py migrate
-python manage.py populate_db_fixed
 
 # Executar servidor
 python manage.py runserver
@@ -212,42 +202,25 @@ POST /api/v1/recommendations/ai/generate-workout/ # Gerar treino com IA
 
 ## 🧪 Aspectos Acadêmicos
 
-### Algoritmos Implementados
-1. **Collaborative Filtering** - Recomendações baseadas em usuários similares
-2. **Content-Based Filtering** - Personalização por características do conteúdo  
-3. **Hybrid Approach** - Combinação de múltiplas técnicas de ML
-4. **Natural Language Processing** - Compreensão de contexto no chatbot
+### 1. Arquitetura Híbrida Validada
+- Modelo de integração funcional entre serviços gerenciados (Firebase) e backend próprio (Django)
+- Documentação de desafios práticos de sincronização e prevenção de race conditions
+- Estratégias de resiliência com fallback determinístico
 
-### Métricas de Avaliação
-- **Precision/Recall** para recomendações
-- **User Satisfaction Score** baseado em feedback
-- **Algorithm Performance Metrics** comparando diferentes abordagens
-- **Response Quality Score** para chatbot
+### 2. Sistema de Recomendação Inovador
+- **Zero-Shot Learning** via IA generativa sem dependência de grandes bases históricas
+- Combinação de prompts estruturados com regras heurísticas de ciência do exercício
+- Transparência algorítmica com justificativas explicativas
 
-### Contribuições Técnicas
-- Framework de recomendação híbrida para fitness
-- Sistema de contextualização para chatbots especializados
-- Análise comparativa de algoritmos de ML em aplicações fitness
-- Arquitetura escalável para sistemas de IA móveis
+### 3. Design Centrado no Contexto de Uso
+- Interface otimizada para visualização durante exercícios físicos
+- Elementos ampliados e alto contraste para legibilidade em movimento
+- Validação por análise heurística baseada nos princípios de Nielsen
 
----
-
-## 📈 Próximas Etapas
-
-### Semana 2: Core da IA
-- [ ] Implementar algoritmos de recomendação avançados
-- [ ] Sistema de NLP para chatbot contextualizado  
-- [ ] Analytics de performance da IA
-
-### Semana 3: Integração e Testes
-- [ ] Conectar frontend com APIs reais
-- [ ] Sistema de feedback loop para ML
-- [ ] Testes automatizados dos algoritmos
-
-### Semana 4: Documentação TCC
-- [ ] Análise comparativa de algoritmos
-- [ ] Documentação técnica completa
-- [ ] Preparação da apresentação
+### 4. Framework Replicável
+- Metodologia documentada para desenvolvimento de aplicações similares em contexto acadêmico
+- Transparência sobre limitações e fronteiras de validação
+- Modelo de organização de revisão de literatura com identificação explícita de lacunas
 
 ---
 

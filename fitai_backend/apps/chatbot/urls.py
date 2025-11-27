@@ -24,18 +24,18 @@ urlpatterns = [
 
 # URLs resultantes após integração:
 #
-# 🤖 CHATBOT - Teste e Status:
+#  CHATBOT - Teste e Status:
 # /api/v1/chat/test/                                    - Teste da API do chatbot
 #
-# 💬 CONVERSAS:
+#  CONVERSAS:
 # /api/v1/chat/conversations/start/                     - Iniciar nova conversa
 # /api/v1/chat/conversations/{id}/message/              - Enviar mensagem
 # /api/v1/chat/conversations/{id}/history/              - Histórico da conversa
 # /api/v1/chat/conversations/{id}/end/                  - Finalizar conversa
 # /api/v1/chat/conversations/                           - Listar conversas do usuário
 #
-# 🔄 INTERAÇÕES:
+#  INTERAÇÕES:
 # /api/v1/chat/messages/{id}/feedback/                  - Feedback em mensagem específica
 #
-# 📊 ANALYTICS:
+#  ANALYTICS:
 # /api/v1/chat/analytics/                               - Analytics pessoais do chat
