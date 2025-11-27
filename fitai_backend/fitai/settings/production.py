@@ -133,7 +133,7 @@ if RENDER_EXTERNAL_HOSTNAME:
     print("=" * 60)
     print("🚀 FITAI - PRODUÇÃO")
     print(f"📍 https://{RENDER_EXTERNAL_HOSTNAME}")
-    print(f"🗄️  {'PostgreSQL (Neon)' if DATABASE_URL else 'SQLite'}")
+    print(f"🗄️  PostgreSQL (Neon)")
     print(f"🔥 Firebase: {'✅' if FIREBASE_CREDENTIALS_JSON else '❌'}")
     print(f"🤖 Gemini: {'✅' if GEMINI_API_KEY else '❌'}")
     print("=" * 60)
