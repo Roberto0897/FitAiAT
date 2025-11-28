@@ -2,6 +2,7 @@
 Configurações de Produção - HARDCODED
 """
 from .base import *
+import dj_database_url
 import os
 
 # =============================================================================
@@ -15,18 +16,17 @@ SECRET_KEY = os.environ.get('SECRET_KEY', SECRET_KEY)
 # 🗄️ BANCO DE DADOS - HARDCODED DIRETO
 # =============================================================================
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'fitai_database',
-        'USER': 'fitai_user',
-        'PASSWORD': 'jK8Wcb6w75UvLYQ1nsTd1fyBKHovOifG',
-        'HOST': 'dpg-d4kea0euk2gs73fq5nqg-a.oregon-postgres.render.com',
-        'PORT': '5432',
-        'OPTIONS': {
-            'sslmode': 'require',
-        }
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True,
+    )
 }
+
+# Debug para confirmar
+db = DATABASES['default']
+print(f"🗄️  HOST: {db.get('HOST', 'N/A')}")
+print(f"🗄️  NAME: {db.get('NAME', 'N/A')}")
 
 print("=" * 80)
 print("🗄️  BANCO: PostgreSQL Render (HARDCODED)")

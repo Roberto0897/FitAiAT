@@ -1,15 +1,10 @@
 import os
 
-# 🔥 DETECTA O AMBIENTE AUTOMATICAMENTE
-if os.environ.get('RENDER_EXTERNAL_HOSTNAME'):
-    # NO RENDER: Força production
+#  DETECTA O AMBIENTE AUTOMATICAMENTE
+# RENDER está disponível no build E runtime (RENDER_EXTERNAL_HOSTNAME só no runtime)
+if os.environ.get('RENDER') or os.environ.get('DATABASE_URL'):
     print("🚀 RENDER DETECTADO - Carregando production.py")
     from .production import *
-elif os.environ.get('DJANGO_SETTINGS_MODULE') == 'fitai.settings.production':
-    # Se explicitamente pediu production
-    print("⚙️  PRODUCTION EXPLÍCITO - Carregando production.py")
-    from .production import *
 else:
-    # LOCAL: Usa development
     print("🏠 LOCAL - Carregando development.py")
     from .development import *
