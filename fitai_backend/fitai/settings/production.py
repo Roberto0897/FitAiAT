@@ -8,6 +8,13 @@ import os
 import json
 import dj_database_url
 
+print("\n" + "=" * 80)
+print("🚨 PRODUCTION.PY SENDO EXECUTADO AGORA!")
+print(f"📍 Arquivo: {__file__}")
+print(f"🔑 DATABASE_URL: {os.environ.get('DATABASE_URL', 'NÃO ENCONTRADA')[:50]}...")
+print(f"🌍 RENDER: {os.environ.get('RENDER', 'NÃO ENCONTRADA')}")
+print("=" * 80 + "\n")
+
 # =============================================================================
 #  SEGURANÇA
 # =============================================================================
