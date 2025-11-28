@@ -7,18 +7,13 @@ import sys
 def main():
     """Run administrative tasks."""
     
-    # 🔍 DETECTA SE ESTÁ NO RENDER
-    # Render injeta a variável RENDER quando faz deploy
-    is_render = os.environ.get('RENDER') is not None
-    
-    if is_render:
-        # 🚀 NO RENDER: Usa production
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fitai.settings.production')
-        print("🔥 Render detectado - Usando fitai.settings.production")
+    # 🔥 FORÇA PRODUCTION NO RENDER (não usa setdefault!)
+    if os.environ.get('RENDER'):
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'fitai.settings.production'
+        print("🚀 RENDER DETECTADO - FORÇANDO production.py")
     else:
-        # 🏠 LOCAL: Usa development
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fitai.settings.development')
-        print("🏠 Ambiente local - Usando fitai.settings.development")
+        print("🏠 LOCAL - Usando development.py")
     
     try:
         from django.core.management import execute_from_command_line
