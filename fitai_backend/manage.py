@@ -7,10 +7,13 @@ import sys
 def main():
     """Run administrative tasks."""
     
-    # 🔥 FORÇA PRODUCTION NO RENDER (não usa setdefault!)
-    if os.environ.get('RENDER'):
+    # 🔥 DETECTA SE ESTÁ NO RENDER PELA HOSTNAME (SEMPRE EXISTE!)
+    if os.environ.get('RENDER_EXTERNAL_HOSTNAME'):
         os.environ['DJANGO_SETTINGS_MODULE'] = 'fitai.settings.production'
+        print("\n" + "=" * 80)
         print("🚀 RENDER DETECTADO - FORÇANDO production.py")
+        print(f"📍 Hostname: {os.environ.get('RENDER_EXTERNAL_HOSTNAME')}")
+        print("=" * 80 + "\n")
     else:
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fitai.settings.development')
         print("🏠 LOCAL - Usando development.py")
