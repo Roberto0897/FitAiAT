@@ -7,16 +7,14 @@ import sys
 def main():
     """Run administrative tasks."""
     
-    # 🔥 USA 'RENDER' OU 'DATABASE_URL' - EXISTEM NO BUILD E RUNTIME
+    # 🔥 USA 'RENDER' OU 'DATABASE_URL'
     if os.environ.get('RENDER') or os.environ.get('DATABASE_URL'):
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'fitai.settings.production'
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'fitai_backend.fitai.settings.production'
         print("\n" + "=" * 80)
         print("🚀 RENDER DETECTADO - FORÇANDO production.py")
-        print(f"📍 RENDER: {os.environ.get('RENDER')}")
-        print(f"📍 DATABASE_URL: {'SIM' if os.environ.get('DATABASE_URL') else 'NÃO'}")
         print("=" * 80 + "\n")
     else:
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fitai.settings.development')
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fitai_backend.fitai.settings.development')
         print("🏠 LOCAL - Usando development.py")
     
     try:
