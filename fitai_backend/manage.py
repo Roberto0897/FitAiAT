@@ -3,9 +3,23 @@
 import os
 import sys
 
-if __name__ == '__main__':
-    # 🆕 Mudança aqui: usar configurações de desenvolvimento por padrão
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fitai.settings.development')
+
+def main():
+    """Run administrative tasks."""
+    
+    # 🔍 DETECTA SE ESTÁ NO RENDER
+    # Render injeta a variável RENDER quando faz deploy
+    is_render = os.environ.get('RENDER') is not None
+    
+    if is_render:
+        # 🚀 NO RENDER: Usa production
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fitai.settings.production')
+        print("🔥 Render detectado - Usando fitai.settings.production")
+    else:
+        # 🏠 LOCAL: Usa development
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fitai.settings.development')
+        print("🏠 Ambiente local - Usando fitai.settings.development")
+    
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -15,3 +29,7 @@ if __name__ == '__main__':
             "forget to activate a virtual environment?"
         ) from exc
     execute_from_command_line(sys.argv)
+
+
+if __name__ == '__main__':
+    main()
