@@ -34,18 +34,48 @@ SECRET_KEY = os.environ.get('SECRET_KEY', SECRET_KEY)
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
+print("\n" + "🔍" * 40)
+print("🔍 DIAGNÓSTICO DETALHADO DO BANCO:")
+print(f"   DATABASE_URL existe? {bool(DATABASE_URL)}")
+if DATABASE_URL:
+    print(f"   DATABASE_URL (primeiros 80 chars): {DATABASE_URL[:80]}...")
+    print(f"   Começa com postgres://? {DATABASE_URL.startswith('postgres://')}")
+print("🔍" * 40 + "\n")
+
 if DATABASE_URL:
     # Fix: Render usa 'postgres://' mas Django precisa 'postgresql://'
     if DATABASE_URL.startswith('postgres://'):
         DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+        print("✅ URL convertida de postgres:// para postgresql://")
     
-    DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL)
-    }
-    print("✅ Usando Render PostgreSQL")
-    print(f"   Host: {DATABASES['default']['HOST']}")
+    try:
+        parsed_db = dj_database_url.parse(DATABASE_URL)
+        DATABASES = {
+            'default': parsed_db
+        }
+        print("\n✅ BANCO DE DADOS CONFIGURADO COM SUCESSO!")
+        print(f"   Engine: {DATABASES['default'].get('ENGINE', 'N/A')}")
+        print(f"   Host: {DATABASES['default'].get('HOST', 'N/A')}")
+        print(f"   Port: {DATABASES['default'].get('PORT', 'N/A')}")
+        print(f"   Database: {DATABASES['default'].get('NAME', 'N/A')}")
+        print(f"   User: {DATABASES['default'].get('USER', 'N/A')}")
+        print()
+    except Exception as e:
+        print(f"\n❌ ERRO AO PARSEAR DATABASE_URL: {e}")
+        print("Usando SQLite como fallback")
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 else:
-    print("⚠️  DATABASE_URL não encontrada!")
+    print("\n⚠️  DATABASE_URL NÃO ENCONTRADA!")
+    print("   Variáveis de ambiente disponíveis:")
+    for key in sorted(os.environ.keys()):
+        if 'DATABASE' in key or 'RENDER' in key or 'DJANGO' in key:
+            print(f"   - {key}: {str(os.environ[key])[:50]}...")
+    print()
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
