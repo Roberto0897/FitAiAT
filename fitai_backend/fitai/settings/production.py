@@ -1,7 +1,7 @@
 from .base import *
 import os
 import json
-import dj_database_url
+from urllib.parse import urlparse
 
 print("\n" + "=" * 80)
 print("🚀 PRODUCTION.PY: Carregando configurações...")
@@ -19,17 +19,14 @@ if RENDER_EXTERNAL_HOSTNAME:
 ALLOWED_HOSTS.append('.onrender.com')
 
 # ==============================================================================
-# 2. BANCO DE DADOS (FIX DEFINITIVO)
+# 2. BANCO DE DADOS (PARSE MANUAL - SEM DJ-DATABASE-URL)
 # ==============================================================================
 print("🔄 PRODUCTION.PY: Configurando Banco de Dados...")
 
-# Pega a URL do ambiente
 database_url = os.environ.get('DATABASE_URL', '').strip()
 
 if not database_url:
     print("❌ ERRO CRÍTICO: DATABASE_URL não encontrada!")
-    print("   💡 Conecte o PostgreSQL no dashboard do Render")
-    
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -37,64 +34,83 @@ if not database_url:
         }
     }
 else:
+    print(f"   📍 URL encontrada (primeiros 50 chars): {database_url[:50]}...")
+    
     # Fix Render: postgres:// -> postgresql://
     if database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql://", 1)
         print("   ✅ Corrigido: postgres:// → postgresql://")
     
-    print(f"   📍 URL encontrada (primeiros 50 chars): {database_url[:50]}...")
-    
     try:
-        # 🔥 FIX: Usa parse() em vez de config()
-        # config() busca do ambiente, parse() usa a string que passamos
-        db_config = dj_database_url.parse(
-            database_url,
-            conn_max_age=600,
-            conn_health_checks=True,
-            ssl_require=True,
-        )
+        # 🔥 PARSE MANUAL com urllib.parse (não depende de dj-database-url)
+        parsed = urlparse(database_url)
         
-        print(f"\n   📊 Resultado do parse:")
-        print(f"      ENGINE: {db_config.get('ENGINE')}")
-        print(f"      HOST:   {db_config.get('HOST')}")
-        print(f"      NAME:   {db_config.get('NAME')}")
-        print(f"      USER:   {db_config.get('USER')}")
-        print(f"      PORT:   {db_config.get('PORT')}")
+        # Extrai os componentes
+        db_name = parsed.path.replace('/', '')  # Remove a barra inicial
+        db_user = parsed.username
+        db_password = parsed.password
+        db_host = parsed.hostname
+        db_port = parsed.port or 5432
+        
+        print(f"\n   📊 Componentes parseados:")
+        print(f"      Scheme:   {parsed.scheme}")
+        print(f"      Host:     {db_host}")
+        print(f"      Port:     {db_port}")
+        print(f"      Database: {db_name}")
+        print(f"      User:     {db_user}")
         
         # Validações críticas
-        if not db_config.get('NAME'):
-            print("\n   ❌ ERRO: NAME está vazio após parse!")
-            print(f"   DATABASE_URL pode estar mal-formada")
-            print(f"   Formato correto: postgresql://user:pass@host.com:5432/dbname")
-            raise ValueError("DATABASE_URL parsing falhou - NAME está None")
+        if not db_host or db_host in ['localhost', '127.0.0.1']:
+            print(f"\n   ❌ ERRO: HOST inválido: {db_host}")
+            raise ValueError(f"HOST inválido: {db_host}")
         
-        if db_config.get('HOST') in [None, '', 'localhost', '127.0.0.1']:
-            print("\n   ❌ ERRO: HOST está incorreto!")
-            print(f"   HOST parseado: {db_config.get('HOST')}")
-            print(f"   DATABASE_URL está incompleta ou inválida")
-            raise ValueError("DATABASE_URL parsing falhou - HOST inválido")
+        if not db_name:
+            print(f"\n   ❌ ERRO: Database name está vazio!")
+            raise ValueError("Database name está vazio")
         
-        # Configura o DATABASES
-        DATABASES = {'default': db_config}
+        if not db_user:
+            print(f"\n   ❌ ERRO: Username está vazio!")
+            raise ValueError("Username está vazio")
         
-        print(f"\n   ✅ Banco Configurado com Sucesso!")
+        # 🎯 CONFIGURAÇÃO MANUAL DO DATABASES (bypassa dj-database-url completamente)
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': db_name,
+                'USER': db_user,
+                'PASSWORD': db_password,
+                'HOST': db_host,
+                'PORT': db_port,
+                'OPTIONS': {
+                    'sslmode': 'require',
+                },
+                'CONN_MAX_AGE': 600,
+                'CONN_HEALTH_CHECKS': True,
+            }
+        }
+        
+        print(f"\n   ✅ Banco Configurado Manualmente!")
+        print(f"      ENGINE: {DATABASES['default']['ENGINE']}")
+        print(f"      HOST:   {DATABASES['default']['HOST']}")
+        print(f"      NAME:   {DATABASES['default']['NAME']}")
+        print(f"      PORT:   {DATABASES['default']['PORT']}")
         
     except Exception as e:
         print(f"\n   ❌ ERRO AO CONFIGURAR BANCO: {e}")
-        print(f"   DATABASE_URL (mascarada): {database_url[:60]}...")
+        print(f"   DATABASE_URL problemática: {database_url[:60]}...")
         
-        # Se falhar, mostra a URL completa (mascarando senha)
+        # Debug adicional
         try:
-            from urllib.parse import urlparse
-            parsed = urlparse(database_url)
-            print(f"\n   🔍 Debug da URL:")
-            print(f"      Scheme: {parsed.scheme}")
-            print(f"      Host: {parsed.hostname}")
-            print(f"      Port: {parsed.port}")
-            print(f"      Path (dbname): {parsed.path}")
-            print(f"      User: {parsed.username}")
-        except:
-            pass
+            test_parse = urlparse(database_url)
+            print(f"\n   🔍 Debug urllib.parse:")
+            print(f"      scheme:   '{test_parse.scheme}'")
+            print(f"      netloc:   '{test_parse.netloc}'")
+            print(f"      hostname: '{test_parse.hostname}'")
+            print(f"      port:     {test_parse.port}")
+            print(f"      path:     '{test_parse.path}'")
+            print(f"      username: '{test_parse.username}'")
+        except Exception as parse_error:
+            print(f"   ❌ Erro no debug: {parse_error}")
         
         raise
 
