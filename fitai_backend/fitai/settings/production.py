@@ -1,26 +1,16 @@
 """
 Configurações para PRODUÇÃO (Render.com)
-Usando PostgreSQL do Neon.tech - dados persistentes!
+Usando PostgreSQL do próprio Render - AUTOMÁTICO!
 """
-
-# ==============================================================================
-# 🔍 DIAGNÓSTICO - REMOVE DEPOIS QUE FUNCIONAR
-# ==============================================================================
-import sys
-print("=" * 80)
-print("🔍 DIAGNÓSTICO DO PRODUCTION.PY")
-print(f"📍 Arquivo sendo executado: {__file__}")
-print(f"🐍 Python: {sys.version}")
-print(f"📂 Path: {sys.path[:3]}")
-print("=" * 80)
 
 from .base import *
 import os
 import json
+import dj_database_url
 
-# ==============================================================================
-# 🔒 SEGURANÇA
-# ==============================================================================
+# =============================================================================
+#  SEGURANÇA
+# =============================================================================
 DEBUG = False
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
@@ -31,48 +21,43 @@ else:
 
 SECRET_KEY = os.environ.get('SECRET_KEY', SECRET_KEY)
 
-# ==============================================================================
-# 🗄️ BANCO DE DADOS - NEON POSTGRESQL (CONFIGURAÇÃO DIRETA)
-# ==============================================================================
+# =============================================================================
+#  BANCO DE DADOS - RENDER POSTGRESQL (AUTOMÁTICO!)
+# =============================================================================
 
-# ✅ CONFIGURAÇÃO DIRETA DO NEON (SEM VARIÁVEIS DE AMBIENTE)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'neondb',
-        'USER': 'neondb_owner',
-        'PASSWORD': 'npg_GShkFM9ZErs3',
-        'HOST': 'ep-damp-forest-acrdjkuq-pooler.sa-east-1.aws.neon.tech',
-        'PORT': '5432',
-        'OPTIONS': {
-            'sslmode': 'require',
-        },
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    # Fix: Render usa 'postgres://' mas Django precisa 'postgresql://'
+    if DATABASE_URL.startswith('postgres://'):
+        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+    
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL)
     }
-}
+    print("✅ Usando Render PostgreSQL")
+    print(f"   Host: {DATABASES['default']['HOST']}")
+else:
+    print("⚠️  DATABASE_URL não encontrada!")
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
-# 🔍 DIAGNÓSTICO DA CONFIGURAÇÃO
-print("\n" + "=" * 80)
-print("🗄️  CONFIGURAÇÃO DO BANCO DE DADOS:")
-print(f"   ENGINE: {DATABASES['default']['ENGINE']}")
-print(f"   NAME: {DATABASES['default']['NAME']}")
-print(f"   USER: {DATABASES['default']['USER']}")
-print(f"   HOST: {DATABASES['default']['HOST']}")
-print(f"   PORT: {DATABASES['default']['PORT']}")
-print("=" * 80 + "\n")
-
-# ==============================================================================
-# 🌐 CORS
-# ==============================================================================
+# =============================================================================
+#  CORS
+# =============================================================================
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-# ==============================================================================
-# 📁 ARQUIVOS ESTÁTICOS (WhiteNoise)
-# ==============================================================================
+# =============================================================================
+#  ARQUIVOS ESTÁTICOS
+# =============================================================================
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_URL = '/static/'
 
-# WhiteNoise para servir arquivos estáticos
 if 'whitenoise.middleware.WhiteNoiseMiddleware' not in MIDDLEWARE:
     MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
@@ -81,9 +66,9 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
-# ==============================================================================
-# 🔐 SEGURANÇA HTTPS
-# ==============================================================================
+# =============================================================================
+#  SEGURANÇA HTTPS
+# =============================================================================
 SECURE_SSL_REDIRECT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
@@ -92,42 +77,34 @@ SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 
-# ==============================================================================
-# 🔥 FIREBASE
-# ==============================================================================
+# =============================================================================
+#  FIREBASE
+# =============================================================================
 FIREBASE_CREDENTIALS_JSON = os.environ.get('FIREBASE_CREDENTIALS_JSON')
 
 if FIREBASE_CREDENTIALS_JSON:
     try:
         FIREBASE_CONFIG = json.loads(FIREBASE_CREDENTIALS_JSON)
-        print("✅ Firebase configurado via variável de ambiente")
-    except json.JSONDecodeError as e:
-        print(f"❌ Erro ao parsear FIREBASE_CREDENTIALS_JSON: {e}")
+        print("✅ Firebase configurado")
+    except json.JSONDecodeError:
         FIREBASE_CONFIG = None
 else:
     FIREBASE_CONFIG = None
-    print("⚠️  FIREBASE_CREDENTIALS_JSON não encontrada")
 
-# ==============================================================================
-# 🤖 GEMINI AI
-# ==============================================================================
+# =============================================================================
+#  GEMINI AI
+# =============================================================================
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 AI_FEATURES_ENABLED = bool(GEMINI_API_KEY)
 
-if AI_FEATURES_ENABLED:
-    print("✅ Gemini AI habilitado")
-else:
-    print("⚠️  GEMINI_API_KEY não encontrada - AI desabilitado")
-
-# ==============================================================================
-# 🎯 INFO FINAL
-# ==============================================================================
+# =============================================================================
+#  INFO FINAL
+# =============================================================================
 if RENDER_EXTERNAL_HOSTNAME:
     print("\n" + "=" * 80)
-    print("🚀 FITAI - PRODUÇÃO (RENDER)")
-    print(f"📍 URL: https://{RENDER_EXTERNAL_HOSTNAME}")
-    print(f"🗄️  Banco: PostgreSQL (Neon)")
-    print(f"🔥 Firebase: {'✅ Configurado' if FIREBASE_CONFIG else '❌ Não configurado'}")
-    print(f"🤖 Gemini: {'✅ Habilitado' if AI_FEATURES_ENABLED else '❌ Desabilitado'}")
-    print(f"🔒 Debug: {DEBUG}")
+    print("🚀 FITAI - PRODUÇÃO")
+    print(f"📍 {RENDER_EXTERNAL_HOSTNAME}")
+    print(f"🗄️  Banco: {'Render PostgreSQL ✅' if DATABASE_URL else 'SQLite ⚠️'}")
+    print(f"🔥 Firebase: {'✅' if FIREBASE_CONFIG else '❌'}")
+    print(f"🤖 Gemini: {'✅' if AI_FEATURES_ENABLED else '❌'}")
     print("=" * 80 + "\n")
