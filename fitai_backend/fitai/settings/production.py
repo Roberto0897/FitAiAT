@@ -19,19 +19,17 @@ if RENDER_EXTERNAL_HOSTNAME:
 ALLOWED_HOSTS.append('.onrender.com')
 
 # ==============================================================================
-# 2. BANCO DE DADOS (CORREÇÃO COMPLETA)
+# 2. BANCO DE DADOS (FIX DEFINITIVO)
 # ==============================================================================
 print("🔄 PRODUCTION.PY: Configurando Banco de Dados...")
 
-# Pega a URL do ambiente (SEM strip manual que pode quebrar o parsing)
+# Pega a URL do ambiente
 database_url = os.environ.get('DATABASE_URL', '').strip()
 
 if not database_url:
     print("❌ ERRO CRÍTICO: DATABASE_URL não encontrada!")
-    print("   ⚠️  O Render deveria ter definido esta variável automaticamente.")
-    print("   💡 Verifique se o PostgreSQL está conectado ao serviço no dashboard do Render.")
+    print("   💡 Conecte o PostgreSQL no dashboard do Render")
     
-    # Fallback temporário para não quebrar o import (mas vai falhar no migrate)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -39,58 +37,71 @@ if not database_url:
         }
     }
 else:
-    # Fix para o Render: postgres:// -> postgresql://
+    # Fix Render: postgres:// -> postgresql://
     if database_url.startswith("postgres://"):
         database_url = database_url.replace("postgres://", "postgresql://", 1)
         print("   ✅ Corrigido: postgres:// → postgresql://")
     
-    # Diagnóstico (sem mostrar senha)
-    print(f"   📍 URL encontrada (primeiros 40 chars): {database_url[:40]}...")
+    print(f"   📍 URL encontrada (primeiros 50 chars): {database_url[:50]}...")
     
     try:
-        # 🔥 MÉTODO CORRETO: Usar dj_database_url.config() diretamente
-        # Isso é mais robusto do que parse() manual
-        DATABASES = {
-            'default': dj_database_url.config(
-                default=database_url,
-                conn_max_age=600,
-                conn_health_checks=True,
-                ssl_require=True,
-            )
-        }
+        # 🔥 FIX: Usa parse() em vez de config()
+        # config() busca do ambiente, parse() usa a string que passamos
+        db_config = dj_database_url.parse(
+            database_url,
+            conn_max_age=600,
+            conn_health_checks=True,
+            ssl_require=True,
+        )
         
-        # VALIDAÇÃO FINAL: Verifica se o parsing funcionou
-        db_config = DATABASES['default']
+        print(f"\n   📊 Resultado do parse:")
+        print(f"      ENGINE: {db_config.get('ENGINE')}")
+        print(f"      HOST:   {db_config.get('HOST')}")
+        print(f"      NAME:   {db_config.get('NAME')}")
+        print(f"      USER:   {db_config.get('USER')}")
+        print(f"      PORT:   {db_config.get('PORT')}")
         
+        # Validações críticas
         if not db_config.get('NAME'):
-            print("❌ ERRO: Parsing falhou - NAME está vazio!")
-            print(f"   Config resultante: {db_config}")
+            print("\n   ❌ ERRO: NAME está vazio após parse!")
+            print(f"   DATABASE_URL pode estar mal-formada")
+            print(f"   Formato correto: postgresql://user:pass@host.com:5432/dbname")
             raise ValueError("DATABASE_URL parsing falhou - NAME está None")
         
         if db_config.get('HOST') in [None, '', 'localhost', '127.0.0.1']:
-            print("❌ ERRO: HOST está incorreto!")
-            print(f"   HOST atual: {db_config.get('HOST')}")
-            print("   💡 A URL pode estar mal-formada. Exemplo correto:")
-            print("   postgresql://user:pass@dpg-xxxxx.oregon-postgres.render.com/dbname")
-            raise ValueError("DATABASE_URL parsing falhou - HOST está localhost/None")
+            print("\n   ❌ ERRO: HOST está incorreto!")
+            print(f"   HOST parseado: {db_config.get('HOST')}")
+            print(f"   DATABASE_URL está incompleta ou inválida")
+            raise ValueError("DATABASE_URL parsing falhou - HOST inválido")
         
-        # Se chegou aqui, está tudo OK!
-        print(f"   ✅ Banco Configurado com Sucesso!")
-        print(f"      👉 ENGINE: {db_config.get('ENGINE')}")
-        print(f"      👉 HOST:   {db_config.get('HOST')}")
-        print(f"      👉 NAME:   {db_config.get('NAME')}")
-        print(f"      👉 PORT:   {db_config.get('PORT')}")
-        print(f"      👉 SSL:    {db_config.get('OPTIONS', {}).get('sslmode', 'N/A')}")
+        # Configura o DATABASES
+        DATABASES = {'default': db_config}
+        
+        print(f"\n   ✅ Banco Configurado com Sucesso!")
         
     except Exception as e:
-        print(f"❌ ERRO AO CONFIGURAR BANCO: {e}")
-        print(f"   DATABASE_URL (mascarada): {database_url[:50]}...")
+        print(f"\n   ❌ ERRO AO CONFIGURAR BANCO: {e}")
+        print(f"   DATABASE_URL (mascarada): {database_url[:60]}...")
+        
+        # Se falhar, mostra a URL completa (mascarando senha)
+        try:
+            from urllib.parse import urlparse
+            parsed = urlparse(database_url)
+            print(f"\n   🔍 Debug da URL:")
+            print(f"      Scheme: {parsed.scheme}")
+            print(f"      Host: {parsed.hostname}")
+            print(f"      Port: {parsed.port}")
+            print(f"      Path (dbname): {parsed.path}")
+            print(f"      User: {parsed.username}")
+        except:
+            pass
+        
         raise
 
 # ==============================================================================
 # 3. FIREBASE
 # ==============================================================================
-print("🔥 PRODUCTION.PY: Configurando Firebase...")
+print("\n🔥 PRODUCTION.PY: Configurando Firebase...")
 FIREBASE_CREDENTIALS_JSON = os.environ.get('FIREBASE_CREDENTIALS_JSON')
 
 if FIREBASE_CREDENTIALS_JSON:
