@@ -7,14 +7,14 @@ import os
 import json
 
 # =============================================================================
-# 🔒 SEGURANÇA
+#  SEGURANÇA
 # =============================================================================
 DEBUG = False
 ALLOWED_HOSTS = ['.onrender.com', 'fitaiat.onrender.com']
 SECRET_KEY = os.environ.get('SECRET_KEY', SECRET_KEY)
 
 # =============================================================================
-# 🗄️ BANCO DE DADOS - CORRIGIDO
+#  BANCO DE DADOS - CORRIGIDO
 # =============================================================================
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
@@ -37,13 +37,13 @@ else:
     raise Exception("❌ DATABASE_URL não encontrada!")
 
 # =============================================================================
-# 🌐 CORS
+#  CORS
 # =============================================================================
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 # =============================================================================
-# 📁 ARQUIVOS ESTÁTICOS
+#  ARQUIVOS ESTÁTICOS
 # =============================================================================
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_URL = '/static/'
@@ -57,7 +57,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
 # =============================================================================
-# 🔐 SEGURANÇA HTTPS
+#  SEGURANÇA HTTPS
 # =============================================================================
 SECURE_SSL_REDIRECT = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -65,7 +65,7 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
 # =============================================================================
-# 🔥 FIREBASE & GEMINI
+#  FIREBASE & GEMINI
 # =============================================================================
 FIREBASE_CREDENTIALS_JSON = os.environ.get('FIREBASE_CREDENTIALS_JSON')
 if FIREBASE_CREDENTIALS_JSON:

@@ -22,7 +22,7 @@ class UserService {
   static const String _currentUserKey = 'current_user';
 
    // 🔥 CONFIGURAÇÃO DA API DJANGO
-  static const String _djangoBaseUrl = 'http://localhost:8000/api/v1';
+  static const String _djangoBaseUrl = 'https://fitaiat.onrender.com/api/v1'; //'http://localhost:8000/api/v1
 
   // ==================== GOOGLE SIGN-IN CONFIGURATION ====================
   

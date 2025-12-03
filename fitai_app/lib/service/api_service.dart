@@ -8,7 +8,7 @@ class ApiService {
   // CONFIGURAÇÃO DA URL BASE
   // ============================================================
   
-  static const String _baseUrl = 'http://localhost:8000'; 
+  static const String _baseUrl = 'https://fitaiat.onrender.com'; 
   static const String _apiVersion = '/api/v1';
   
   // Firebase Auth instance

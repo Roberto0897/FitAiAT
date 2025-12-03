@@ -148,7 +148,7 @@ CORS_ALLOW_ALL_ORIGINS = DEBUG  # Só em desenvolvimento
 
 """""
 # =============================================================================
-# 🤖 CONFIGURAÇÕES DE IA E OPENAI
+#  CONFIGURAÇÕES DE IA E OPENAI
 # =============================================================================
 
 # OpenAI API Configuration

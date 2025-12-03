@@ -1,6 +1,6 @@
 """
-Configurações para quando você está DESENVOLVENDO
-(seu computador, testando, etc.)
+Configurações DESENVOLVENDO
+
 """
 from .base import *
 import os
@@ -11,7 +11,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
-# Database para desenvolvimento (SQLite é mais fácil)
+# Database para desenvolvimento 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -27,8 +27,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8080",      # Flutter web
 ]
 
-# Durante desenvolvimento, pode ser mais liberal
-CORS_ALLOW_ALL_ORIGINS = True  # ⚠️ APENAS para desenvolvimento!
+
+CORS_ALLOW_ALL_ORIGINS = True  # APENAS para desenvolvimento!
 
 # Para ver melhor os erros
 LOGGING = {

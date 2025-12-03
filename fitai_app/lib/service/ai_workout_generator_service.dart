@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class AIWorkoutGeneratorService {
   // USAR SEU BACKEND EXISTENTE
-  static const String baseUrl = 'http://localhost:8000/api/v1';
+  static const String baseUrl = 'https://fitaiat.onrender.com/api/v1';
   
   /// Gera treino personalizado durante onboarding usando RecommendationEngine
   static Future<Map<String, dynamic>?> generatePersonalizedWorkout({
